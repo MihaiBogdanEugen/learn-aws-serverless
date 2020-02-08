@@ -26,6 +26,7 @@ hs_err_pid*
 # https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle
 /build/
+*/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -35,19 +36,6 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-
-# https://github.com/github/gitignore/blob/master/Maven.gitignore
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
 
 # IntelliJ IDEA
 .idea
