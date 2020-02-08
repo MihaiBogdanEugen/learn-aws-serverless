@@ -5,6 +5,9 @@ help:
 
 ## clean: Clean the files and directories generated during build
 clean:
+	rm -rfd infrastructure/terraform/.terraform/ && \
+	rm -f infrastructure/terraform/terraform.tfstate && \
+	rm -f infrastructure/terraform/terraform.tfstate.backup && \
 	cd app/movies-stats && ./gradlew clean
 
 ## test: Run the tests
@@ -48,4 +51,4 @@ ifeq (, $(shell which terraform))
 	$(error "terraform is NOT installed correctly. More information: https://www.terraform.io/downloads.html")
 endif
 
-.PHONY: help clean test package check-updates fmt validate init plan apply destroy check-terraform
+.PHONY: help clean test package fmt validate init plan apply destroy check-terraform
