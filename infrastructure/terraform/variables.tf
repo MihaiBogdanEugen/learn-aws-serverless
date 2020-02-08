@@ -1,7 +1,7 @@
-variable region {
+variable aws_region {
   default = "eu-central-1"
 }
 
-variable account_id {
-  default = "941312580222"
+variable aws_account_id {
+  default = "xxxxxxxxxxxx"
 }
