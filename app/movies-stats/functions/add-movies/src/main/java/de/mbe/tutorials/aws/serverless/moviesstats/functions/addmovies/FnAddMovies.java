@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.addmovies;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies;
 
 import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -9,8 +9,8 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import de.mbe.tutorials.aws.serverless.moviesstats.addmovies.repositories.MoviesStatsRepository;
-import de.mbe.tutorials.aws.serverless.moviesstats.addmovies.services.MoviesStorageService;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsRepository;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

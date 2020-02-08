@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.addmovies.services;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services;
 
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.AmazonS3;

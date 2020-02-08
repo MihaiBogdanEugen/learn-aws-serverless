@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstatsapp.getmovieandstatsvc.repositories;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories;
 
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 

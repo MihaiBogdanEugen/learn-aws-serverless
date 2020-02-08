@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstatsapp.addstatsvc.repositories;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories;
 
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 

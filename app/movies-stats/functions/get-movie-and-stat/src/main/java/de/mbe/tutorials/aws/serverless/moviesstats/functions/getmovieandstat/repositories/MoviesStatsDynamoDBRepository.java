@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstatsapp.getmovieandstatsvc.repositories;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
