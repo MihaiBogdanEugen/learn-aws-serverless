@@ -11,39 +11,43 @@ clean:
 	cd app/movies-stats && ./gradlew clean
 
 ## test: Run the tests
-test: clean
+test:
 	cd app/movies-stats && ./gradlew test
 
-## package: Build and package the source code into an uber-jar
+## package: Build and package the source code into an uber-zip
 package: test
 	cd app/movies-stats && \
 	./gradlew :functions:add-movies:build && \
 	./gradlew :functions:add-stat:build && \
 	./gradlew :functions:get-movie-and-stat:build
 
-## format: Rewrites config files to canonical format
+## format: Rewrites Terraform config files to canonical format
 fmt: check-terraform
 	cd infrastructure/terraform && terraform fmt -recursive
 
-## validate: Validates the Terraform files
-validate: check-terraform init fmt
-	cd infrastructure/terraform && terraform validate
-
 ## init: Initialize a Terraform working directory
-init: check-terraform
+init: fmt
 	cd infrastructure/terraform && terraform init
 
-## plan: Generate and show an execution plan
-plan: check-terraform init validate package
+## validate: Validates the Terraform files
+validate: package init
+	cd infrastructure/terraform && terraform validate
+
+## plan: Generate and show a Terraform execution plan
+plan: validate
 	cd infrastructure/terraform && terraform plan
 
-## apply: Build or change infrastructure
-apply: check-terraform plan
+## apply: Build or change Terraform infrastructure
+apply: check-tf-var-aws-region check-tf-var-aws-account-id plan
 	cd infrastructure/terraform && terraform apply -auto-approve
 
 ## destroy: Destroy Terraform-managed infrastructure
 destroy: check-terraform init
 	cd infrastructure/terraform && terraform destroy -auto-approve
+
+## output: Read an output from a Terraform state file
+output: check-terraform
+	cd infrastructure/terraform && terraform output
 
 ## check-terraform: Locate terraform in the current user's path (checking if it is installed or not)
 check-terraform:
@@ -51,4 +55,16 @@ ifeq (, $(shell which terraform))
 	$(error "terraform is NOT installed correctly. More information: https://www.terraform.io/downloads.html")
 endif
 
-.PHONY: help clean test package fmt validate init plan apply destroy check-terraform
+## check-tf-var-aws-region: Ensure the TF_VAR_aws_region environment variable is defined
+check-tf-var-aws-region:
+ifndef TF_VAR_aws_region
+	$(error "TF_VAR_aws_region is undefined")
+endif
+
+## check-tf-var-aws-account-id: Ensure the TF_VAR_aws_account_id environment variable is defined
+check-tf-var-aws-account-id:
+ifndef TF_VAR_aws_account_id
+	$(error "TF_VAR_aws_account_id is undefined")
+endif
+
+.PHONY: help clean test package fmt init validate plan apply destroy output check-terraform check-tf-var-aws-region check-tf-var-aws-account-id
