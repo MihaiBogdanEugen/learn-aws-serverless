@@ -5,18 +5,18 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstats.addmovies.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstats.addmovies.services.MoviesStorageService;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
+
+import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
 
 public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2ProxyResponseEvent> {
 
@@ -43,36 +43,26 @@ public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2Pr
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final S3Event s3Event, final Context context) {
 
-        final var moviesTableName = System.getenv("MOVIES_DYNAMODB_TABLE");
-        if (moviesTableName == null || moviesTableName.trim().isEmpty()) {
-            LOGGER.error("MOVIES_DYNAMODB_TABLE environment variable is not set up");
-            return APIGatewayResponses.internalServerError("MOVIES_DYNAMODB_TABLE environment variable is not set up");
-        }
-
-        final var moviesBucketArn = System.getenv("MOVIES_S3_BUCKET");
-        if (moviesBucketArn == null || moviesBucketArn.trim().isEmpty()) {
-            LOGGER.error("MOVIES_S3_BUCKET environment variable is not set up");
-            return APIGatewayResponses.internalServerError("MOVIES_S3_BUCKET environment variable is not set up");
-        }
-
-        final List<Movie> movies;
+        final var moviesTableName = System.getenv("MOVIES_TABLE");
+        final var moviesBucketName = System.getenv("MOVIES_BUCKET");
 
         try {
-            movies = this.storageService.getMovies(s3Event, moviesBucketArn);
+
+            final var movies = this.storageService.getMovies(s3Event, moviesBucketName);
+            LOGGER.info("{} movies read from the file", movies.size());
+
+            final var noOfPersistedMovies = this.repository.saveMovies(movies, moviesTableName);
+            LOGGER.info("{} movies wrote to the database", noOfPersistedMovies);
+
         } catch (IOException error) {
             LOGGER.error(error.getMessage());
-            return APIGatewayResponses.internalServerError(error.getMessage());
+            return internalServerError(error.getMessage());
+
+        } catch (AmazonS3Exception | AmazonDynamoDBException error) {
+            LOGGER.error(error.getMessage(), error);
+            return amazonServiceError(error);
         }
 
-        LOGGER.info("Uploading {} movies", movies.size());
-
-        try {
-            this.repository.saveMovies(movies, moviesTableName);
-        } catch (AmazonDynamoDBException error) {
-            LOGGER.error(error.getMessage());
-            return APIGatewayResponses.amazonServiceError(error);
-        }
-
-        return APIGatewayResponses.success();
+        return success();
     }
 }

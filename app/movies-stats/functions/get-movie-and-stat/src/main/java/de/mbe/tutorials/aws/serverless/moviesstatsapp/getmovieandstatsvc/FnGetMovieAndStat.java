@@ -14,8 +14,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.getmovieandstatsvc.repositories.MoviesStatsRepository;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,50 +45,37 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final APIGatewayV2ProxyRequestEvent request, final Context context) {
 
-        final var moviesTableName = System.getenv("MOVIES_DYNAMODB_TABLE");
-        if (moviesTableName == null || moviesTableName.trim().isEmpty()) {
-            LOGGER.error("MOVIES_DYNAMODB_TABLE environment variable is not set up");
-            return APIGatewayResponses.internalServerError("MOVIES_DYNAMODB_TABLE environment variable is not set up");
-        }
+        final var moviesTableName = System.getenv("MOVIES_TABLE");
+        final var statsTableName = System.getenv("STATS_TABLE");
 
-        final var statsTableName = System.getenv("STATS_DYNAMODB_TABLE");
-        if (statsTableName == null || statsTableName.trim().isEmpty()) {
-            LOGGER.error("STATS_DYNAMODB_TABLE environment variable is not set up");
-            return APIGatewayResponses.internalServerError("STATS_DYNAMODB_TABLE environment variable is not set up");
-        }
 
-        if (!request.getHttpMethod().equalsIgnoreCase("get")) {
-            LOGGER.error("method {} not allowed", request.getHttpMethod());
-            return methodNotAllowed();
-        }
-
-        if (!request.getPathParameters().containsKey("id")) {
-            LOGGER.error("id request parameter is missing");
+        if (!request.getHttpMethod().equalsIgnoreCase("get")
+                || !request.getPathParameters().containsKey("id")) {
+            LOGGER.error("Other method than GET used or {id} request parameter is missing");
             return badRequest();
         }
 
         final var id = request.getPathParameters().get("id");
-        LOGGER.info("retrieving movie with stats for # {}", id);
-
-        final MovieAndStat movieAndStat;
+        LOGGER.info("retrieving movie with stats # {}", id);
 
         try {
-            movieAndStat = this.repository.getById(id, moviesTableName, statsTableName);
-        } catch (AmazonDynamoDBException error) {
-            LOGGER.error(error.getMessage(), error);
-            return amazonServiceError(error);
-        }
 
-        if (movieAndStat == null) {
-            LOGGER.error("No records for id {}", id);
-            return notFound();
-        }
+            final var movieAndStat = this.repository.getById(id, moviesTableName, statsTableName);
 
-        try {
-            return success(this.objectMapper.writeValueAsString(movieAndStat));
+            if (movieAndStat == null) {
+                LOGGER.error("No records for # {}", id);
+                return notFound();
+            } else {
+                return success(this.objectMapper.writeValueAsString(movieAndStat));
+            }
+
         } catch (JsonProcessingException error) {
             LOGGER.error(error.getMessage());
             return internalServerError(error.getMessage());
+
+        } catch (AmazonDynamoDBException error) {
+            LOGGER.error(error.getMessage(), error);
+            return amazonServiceError(error);
         }
     }
 }

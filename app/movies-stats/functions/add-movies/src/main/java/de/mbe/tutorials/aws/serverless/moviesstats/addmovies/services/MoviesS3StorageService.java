@@ -14,36 +14,36 @@ import java.util.List;
 
 public final class MoviesS3StorageService implements MoviesStorageService {
 
-    private final AmazonS3 s3;
+    private final AmazonS3 s3Client;
 
     public MoviesS3StorageService() {
-        this.s3 = AmazonS3ClientBuilder
+        this.s3Client = AmazonS3ClientBuilder
                 .standard()
                 .build();
     }
 
     @Override
-    public List<Movie> getMovies(final S3Event s3Event, final String moviesBucketArn) throws IOException {
+    public List<Movie> getMovies(final S3Event s3Event, final String moviesBucketName) throws IOException {
 
         final var movies = new ArrayList<Movie>();
 
         for (final var record : s3Event.getRecords()) {
 
-            final var bucketEntity = record.getS3().getBucket();
-            if (!bucketEntity.getArn().equalsIgnoreCase(moviesBucketArn)) {
+            final var s3Entity = record.getS3();
+            final var bucketName = s3Entity.getBucket().getName();
+            if (!bucketName.equalsIgnoreCase(moviesBucketName)) {
                 continue;
             }
 
-            final var bucket = bucketEntity.getName();
-            final var key = record.getS3().getObject().getUrlDecodedKey();
-            final var s3Object = this.s3.getObject(bucket, key);
+            final var key = s3Entity.getObject().getUrlDecodedKey();
+            final var s3Object = this.s3Client.getObject(bucketName, key);
 
             String line;
 
             try (final var inputStream = s3Object.getObjectContent()) {
                 try (final var bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
                     while ((line = bufferedReader.readLine()) != null) {
-                        final String[] parts = line.split(",");
+                        final var parts = line.split(",");
                         movies.add(new Movie(
                                 parts[0],
                                 parts[1],
