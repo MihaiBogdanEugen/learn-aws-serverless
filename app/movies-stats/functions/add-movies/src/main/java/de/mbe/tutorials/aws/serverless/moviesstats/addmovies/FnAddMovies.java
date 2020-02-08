@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-public class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2ProxyResponseEvent> {
+public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2ProxyResponseEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FnAddMovies.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());

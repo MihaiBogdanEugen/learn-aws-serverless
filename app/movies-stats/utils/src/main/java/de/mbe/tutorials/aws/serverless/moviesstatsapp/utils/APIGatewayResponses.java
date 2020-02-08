@@ -3,7 +3,7 @@ package de.mbe.tutorials.aws.serverless.moviesstatsapp.utils;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 
-public class APIGatewayResponses {
+public final class APIGatewayResponses {
 
     public static APIGatewayV2ProxyResponseEvent success() {
         return success("Success");
@@ -34,7 +34,7 @@ public class APIGatewayResponses {
     }
 
     private static APIGatewayV2ProxyResponseEvent response(final int statusCode, final String body) {
-        final APIGatewayV2ProxyResponseEvent response = new APIGatewayV2ProxyResponseEvent();
+        final var response = new APIGatewayV2ProxyResponseEvent();
         response.setStatusCode(statusCode);
         response.setBody(body);
         return response;

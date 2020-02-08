@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LocalDateConverterTests {
+public final class LocalDateConverterTests {
 
     @Test
     void conversionWorksFromLocalDateToString() {

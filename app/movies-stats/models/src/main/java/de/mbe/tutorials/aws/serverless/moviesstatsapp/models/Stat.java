@@ -9,7 +9,7 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDat
 import java.time.LocalDate;
 
 @DynamoDBTable(tableName = "stats")
-public class Stat {
+public final class Stat {
 
     @DynamoDBHashKey
     @DynamoDBAttribute(attributeName = "id")

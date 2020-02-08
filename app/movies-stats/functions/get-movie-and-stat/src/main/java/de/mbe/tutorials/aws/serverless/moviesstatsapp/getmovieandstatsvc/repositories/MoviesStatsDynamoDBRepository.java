@@ -8,7 +8,7 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-public class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
+public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
 
     private final AmazonDynamoDB dynamoDB;
     private final DynamoDBMapper mapper;
@@ -24,15 +24,15 @@ public class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
 
     @Override
     public MovieAndStat getById(final String id) {
-        final MovieAndStat result = new MovieAndStat();
-        final DynamoDBMapperConfig consistentReadConfig = DynamoDBMapperConfig.ConsistentReads.CONSISTENT.config();
 
-        final Movie movie = this.mapper.load(Movie.class, id, consistentReadConfig);
+        final var result = new MovieAndStat();
+
+        final var movie = this.mapper.load(Movie.class, id, DynamoDBMapperConfig.ConsistentReads.CONSISTENT.config());
         if (movie != null) {
             result.setMovie(movie);
         }
 
-        final Stat stat = this.mapper.load(Stat.class, id, consistentReadConfig);
+        final var stat = this.mapper.load(Stat.class, id, DynamoDBMapperConfig.ConsistentReads.CONSISTENT.config());
         if (stat != null) {
             result.setStat(stat);
         }

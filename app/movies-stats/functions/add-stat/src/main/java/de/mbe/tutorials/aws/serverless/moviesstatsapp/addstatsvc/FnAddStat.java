@@ -21,7 +21,7 @@ import javax.inject.Inject;
 
 import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
 
-public class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
+public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FnAddStat.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
@@ -56,7 +56,7 @@ public class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, 
             return badRequest();
         }
 
-        final String id = apiGatewayRequestEvent.getPathParameters().get("id");
+        final var id = apiGatewayRequestEvent.getPathParameters().get("id");
         LOGGER.info("saving stats for the movie # {}", id);
 
         final Stat stat;

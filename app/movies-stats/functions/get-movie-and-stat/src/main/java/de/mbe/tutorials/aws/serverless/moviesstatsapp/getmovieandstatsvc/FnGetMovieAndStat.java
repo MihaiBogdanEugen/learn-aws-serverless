@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
 
-public class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
+public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final Logger LOGGER = LoggerFactory.getLogger(FnGetMovieAndStat.class);
@@ -54,7 +54,7 @@ public class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyReques
             return badRequest();
         }
 
-        final String id = request.getPathParameters().get("id");
+        final var id = request.getPathParameters().get("id");
         LOGGER.info("retrieving movie with stats for # {}", id);
 
         final MovieAndStat movieAndStat;

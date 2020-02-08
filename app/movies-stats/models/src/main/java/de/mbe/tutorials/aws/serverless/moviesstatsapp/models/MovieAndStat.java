@@ -2,7 +2,7 @@ package de.mbe.tutorials.aws.serverless.moviesstatsapp.models;
 
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDateConverter;
 
-public class MovieAndStat {
+public final class MovieAndStat {
 
     private String id;
     private String name;

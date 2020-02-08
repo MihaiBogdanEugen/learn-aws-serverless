@@ -6,7 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-public class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
+public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
 
     private final AmazonDynamoDB dynamoDB;
     private final DynamoDBMapper mapper;
