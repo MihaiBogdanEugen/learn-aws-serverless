@@ -1,0 +1,4 @@
+dependencies {
+    implementation "com.amazonaws:aws-java-sdk-core:${awsJavaSdkVersion}"
+    implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
+}

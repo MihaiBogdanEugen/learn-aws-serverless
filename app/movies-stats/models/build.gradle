@@ -1,0 +1,5 @@
+dependencies {
+    implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsJavaSdkVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
+}
