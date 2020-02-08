@@ -1,0 +1,75 @@
+ext {
+    awsLambdaJavaCoreVersion = "1.2.0"
+    awsLambdaJavaEventsVersion = "2.2.7"
+    awsJavaSdkVersion = "1.11.717"
+    awsXrayRecorderSdkCoreVersion = "2.4.0"
+    gradleVersion = "6.1.1"
+    guiceVersion = "4.2.2"
+    jacksonVersion = "2.10.2"
+    junitJupiterVersion = "5.6.0"
+    lambdaLoggingVersion = "1.0.3"
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "idea"
+
+    group = "de.mbe.tutorials.aws.serverless.moviesstats"
+    version = "1.0.0"
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    idea {
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+}
+
+configure(subprojects.findAll {it.name != "models" && it.name != "utils"}) {
+    dependencies {
+        implementation project(":models")
+        implementation project(":utils")
+
+        implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
+        implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
+        implementation "com.amazonaws:aws-xray-recorder-sdk-core:${awsXrayRecorderSdkCoreVersion}"
+        implementation "com.google.inject:guice:${guiceVersion}"
+        implementation "io.symphonia:lambda-logging:${lambdaLoggingVersion}:no-config"
+    }
+
+    task buildZip(type: Zip) {
+        from compileJava
+        from processResources
+        into("lib") {
+            from configurations.runtimeClasspath
+        }
+        archiveFileName = "${project.name}.zip"
+    }
+
+    build.dependsOn buildZip
+}
+
+wrapper {
+    gradleVersion = "${gradleVersion}"
+    distributionType = Wrapper.DistributionType.ALL
+}

@@ -1,0 +1,8 @@
+rootProject.name = "movies-stats"
+
+include ":models"
+include ":utils"
+
+include ":functions:add-movies"
+include ":functions:add-stat"
+include ":functions:get-movie-and-stat"
