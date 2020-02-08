@@ -50,7 +50,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
         final var statsTableName = System.getenv("STATS_TABLE");
 
-        if (apiGatewayRequestEvent.getHttpMethod().equalsIgnoreCase("patch")
+        if (!apiGatewayRequestEvent.getHttpMethod().equalsIgnoreCase("patch")
                 || !apiGatewayRequestEvent.getPathParameters().containsKey("id")
                 || apiGatewayRequestEvent.getBody().isBlank()) {
             LOGGER.error("Other method than PATCH used, {id} request parameter is missing or body is empty");
