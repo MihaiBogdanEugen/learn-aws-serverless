@@ -14,6 +14,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.addstatsvc.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
+import de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +49,19 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(APIGatewayV2ProxyRequestEvent apiGatewayRequestEvent, Context context) {
 
+        final var statsTableName = System.getenv("STATS_DYNAMODB_TABLE");
+        if (statsTableName == null || statsTableName.trim().isEmpty()) {
+            LOGGER.error("STATS_DYNAMODB_TABLE environment variable is not set up");
+            return APIGatewayResponses.internalServerError("STATS_DYNAMODB_TABLE environment variable is not set up");
+        }
+
         if (!apiGatewayRequestEvent.getHttpMethod().equalsIgnoreCase("patch")) {
+            LOGGER.error("method {} not allowed", apiGatewayRequestEvent.getHttpMethod());
             return methodNotAllowed();
         }
 
         if (!apiGatewayRequestEvent.getPathParameters().containsKey("id") || apiGatewayRequestEvent.getBody().isBlank()) {
+            LOGGER.error("id request parameter is missing or body is empty");
             return badRequest();
         }
 
@@ -64,15 +73,17 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
         try {
             stat = this.objectMapper.readValue(apiGatewayRequestEvent.getBody(), Stat.class);
         } catch (JsonProcessingException error) {
+            LOGGER.error(error.getMessage());
             return internalServerError(error.getMessage());
         }
 
         if (stat == null) {
+            LOGGER.error("body is empty");
             return badRequest();
         }
 
         try {
-            this.repository.saveStat(stat);
+            this.repository.saveStat(stat, statsTableName);
         } catch (AmazonDynamoDBException error) {
             LOGGER.error(error.getMessage(), error);
             return amazonServiceError(error);

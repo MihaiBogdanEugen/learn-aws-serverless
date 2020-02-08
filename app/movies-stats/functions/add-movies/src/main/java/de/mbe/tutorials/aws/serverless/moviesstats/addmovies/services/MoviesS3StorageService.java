@@ -23,13 +23,18 @@ public final class MoviesS3StorageService implements MoviesStorageService {
     }
 
     @Override
-    public List<Movie> getMovies(final S3Event s3Event) throws IOException {
+    public List<Movie> getMovies(final S3Event s3Event, final String moviesBucketArn) throws IOException {
 
         final var movies = new ArrayList<Movie>();
 
         for (final var record : s3Event.getRecords()) {
 
-            final var bucket = record.getS3().getBucket().getName();
+            final var bucketEntity = record.getS3().getBucket();
+            if (!bucketEntity.getArn().equalsIgnoreCase(moviesBucketArn)) {
+                continue;
+            }
+
+            final var bucket = bucketEntity.getName();
             final var key = record.getS3().getObject().getUrlDecodedKey();
             final var s3Object = this.s3.getObject(bucket, key);
 

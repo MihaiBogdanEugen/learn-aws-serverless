@@ -4,5 +4,5 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 
 public interface MoviesStatsRepository {
 
-    MovieAndStat getById(final String id);
+    MovieAndStat getById(final String id, final String moviesTableName, final String statsTableName);
 }

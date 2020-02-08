@@ -23,16 +23,26 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
     }
 
     @Override
-    public MovieAndStat getById(final String id) {
+    public MovieAndStat getById(final String id, final String moviesTableName, final String statsTableName) {
 
         final var result = new MovieAndStat();
 
-        final var movie = this.mapper.load(Movie.class, id, DynamoDBMapperConfig.ConsistentReads.CONSISTENT.config());
+        final var moviesConfig = DynamoDBMapperConfig.builder()
+                .withTableNameOverride(new DynamoDBMapperConfig.TableNameOverride(moviesTableName))
+                .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
+                .build();
+
+        final var movie = this.mapper.load(Movie.class, id, moviesConfig);
         if (movie != null) {
             result.setMovie(movie);
         }
 
-        final var stat = this.mapper.load(Stat.class, id, DynamoDBMapperConfig.ConsistentReads.CONSISTENT.config());
+        final var statsConfig = DynamoDBMapperConfig.builder()
+                .withTableNameOverride(new DynamoDBMapperConfig.TableNameOverride(statsTableName))
+                .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
+                .build();
+
+        final var stat = this.mapper.load(Stat.class, id, statsConfig);
         if (stat != null) {
             result.setStat(stat);
         }

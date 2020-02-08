@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface MoviesStorageService {
 
-    List<Movie> getMovies(final S3Event s3Event) throws IOException;
+    List<Movie> getMovies(final S3Event s3Event, final String moviesBucketArn) throws IOException;
 }

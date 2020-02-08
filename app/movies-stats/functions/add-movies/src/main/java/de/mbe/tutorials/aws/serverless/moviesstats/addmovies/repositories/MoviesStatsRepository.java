@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface MoviesStatsRepository {
 
-    void saveMovies(final List<Movie> movies);
+    void saveMovies(final List<Movie> movies, final String moviesTableName);
 }

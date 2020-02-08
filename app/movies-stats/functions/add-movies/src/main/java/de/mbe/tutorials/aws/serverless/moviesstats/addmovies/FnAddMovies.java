@@ -43,17 +43,31 @@ public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2Pr
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final S3Event s3Event, final Context context) {
 
+        final var moviesTableName = System.getenv("MOVIES_DYNAMODB_TABLE");
+        if (moviesTableName == null || moviesTableName.trim().isEmpty()) {
+            LOGGER.error("MOVIES_DYNAMODB_TABLE environment variable is not set up");
+            return APIGatewayResponses.internalServerError("MOVIES_DYNAMODB_TABLE environment variable is not set up");
+        }
+
+        final var moviesBucketArn = System.getenv("MOVIES_S3_BUCKET");
+        if (moviesBucketArn == null || moviesBucketArn.trim().isEmpty()) {
+            LOGGER.error("MOVIES_S3_BUCKET environment variable is not set up");
+            return APIGatewayResponses.internalServerError("MOVIES_S3_BUCKET environment variable is not set up");
+        }
+
         final List<Movie> movies;
 
         try {
-            movies = this.storageService.getMovies(s3Event);
+            movies = this.storageService.getMovies(s3Event, moviesBucketArn);
         } catch (IOException error) {
             LOGGER.error(error.getMessage());
             return APIGatewayResponses.internalServerError(error.getMessage());
         }
 
+        LOGGER.info("Uploading {} movies", movies.size());
+
         try {
-            this.repository.saveMovies(movies);
+            this.repository.saveMovies(movies, moviesTableName);
         } catch (AmazonDynamoDBException error) {
             LOGGER.error(error.getMessage());
             return APIGatewayResponses.amazonServiceError(error);

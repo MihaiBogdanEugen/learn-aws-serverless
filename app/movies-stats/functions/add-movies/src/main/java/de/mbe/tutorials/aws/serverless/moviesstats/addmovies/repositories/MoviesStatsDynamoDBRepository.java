@@ -23,7 +23,13 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
     }
 
     @Override
-    public void saveMovies(List<Movie> movies) {
-        this.mapper.batchWrite(movies, null, DynamoDBMapperConfig.SaveBehavior.CLOBBER.config());
+    public void saveMovies(final List<Movie> movies, final String moviesTableName) {
+
+        final var config = DynamoDBMapperConfig.builder()
+                .withTableNameOverride(new DynamoDBMapperConfig.TableNameOverride(moviesTableName))
+                .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.CLOBBER)
+                .build();
+
+        this.mapper.batchWrite(movies, null, config);
     }
 }

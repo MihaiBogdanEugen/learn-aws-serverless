@@ -4,5 +4,5 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
 public interface MoviesStatsRepository {
 
-    void saveStat(final Stat stat);
+    void saveStat(final Stat stat, final String statsTableName);
 }
