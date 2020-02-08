@@ -3,7 +3,7 @@ terraform {
 }
 
 provider aws {
-  region  = var.region
+  region  = var.aws_region
   version = "~> 2.47"
 }
 
@@ -12,8 +12,8 @@ provider archive {
 }
 
 locals {
-  add_movies_lambda_dist_filename = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies.zip"
-  add_stat_lambda_dist_filename = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat.zip"
+  add_movies_lambda_dist_filename         = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies.zip"
+  add_stat_lambda_dist_filename           = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat.zip"
   get_movie_and_stat_lambda_dist_filename = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat.zip"
 }
 
@@ -227,8 +227,8 @@ module add_movies_lambda {
   handler          = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.FnAddMovies::handleRequest"
   role             = module.add_movies_lambda_role.arn
   env = {
-    MOVIES_BUCKET      = module.movies_bucket.name
-    MOVIES_TABLE = module.movies_table.name
+    MOVIES_BUCKET = module.movies_bucket.name
+    MOVIES_TABLE  = module.movies_table.name
   }
 }
 
@@ -346,8 +346,8 @@ module movies_bucket_notification {
 
 module allow_movies_stats_api_gw_to_invoke_get_movie_and_stat_lambda {
   source              = "./modules/lambda_permission/allow_execution_from_api_gateway"
-  region              = var.region
-  account_id          = var.account_id
+  region              = var.aws_region
+  account_id          = var.aws_account_id
   api_gw_id           = module.movies_stats_api_gw.id
   resource_path       = module.movie_resource.path
   function_arn        = module.get_movie_and_stat_lambda.arn
@@ -358,8 +358,8 @@ module allow_movies_stats_api_gw_to_invoke_get_movie_and_stat_lambda {
 
 module allow_movies_stats_api_gw_to_invoke_add_stat_lambda {
   source              = "./modules/lambda_permission/allow_execution_from_api_gateway"
-  region              = var.region
-  account_id          = var.account_id
+  region              = var.aws_region
+  account_id          = var.aws_account_id
   api_gw_id           = module.movies_stats_api_gw.id
   resource_path       = module.movie_resource.path
   function_arn        = module.add_stat_lambda.arn
