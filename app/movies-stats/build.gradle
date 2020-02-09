@@ -52,14 +52,19 @@ configure(subprojects.findAll {it.name != "models"}) {
         implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsJavaSdkVersion}"
     }
 
-    task buildZip(type: Zip) {
-        from compileJava
-        into("lib") {
+    task buildLayerZip(type: Zip) {
+        into("java/lib") {
             from configurations.runtimeClasspath
         }
+        archiveFileName = "${project.name}-layer.zip"
+    }
+
+    task buildZip(type: Zip) {
+        from compileJava
         archiveFileName = "${project.name}.zip"
     }
 
+    build.dependsOn buildLayerZip
     build.dependsOn buildZip
 }
 
