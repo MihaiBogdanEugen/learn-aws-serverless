@@ -3,7 +3,6 @@ package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies;
 import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.inject.Guice;
@@ -14,9 +13,7 @@ import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.
 
 import java.io.IOException;
 
-import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
-
-public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2ProxyResponseEvent> {
+public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
 
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
 
@@ -38,29 +35,34 @@ public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2Pr
     }
 
     @Override
-    public APIGatewayV2ProxyResponseEvent handleRequest(final S3Event s3Event, final Context context) {
+    public Integer handleRequest(final S3Event s3Event, final Context context) {
 
         final var logger = context.getLogger();
-        final var moviesTableName = System.getenv("MOVIES_TABLE");
-        final var moviesBucketName = System.getenv("MOVIES_BUCKET");
+        final var awsRequestId = context.getAwsRequestId();
+
+        logger.log(String.format("AWS_REQUEST_ID: %s, RemainingTimeInMillis: %d", awsRequestId, context.getRemainingTimeInMillis()));
 
         try {
-
-            final var movies = this.storageService.getMovies(s3Event, moviesBucketName);
-            logger.log(String.format("%d movies read from the file", movies.size()));
-
-            final var noOfPersistedMovies = this.repository.saveMovies(movies, moviesTableName);
-            logger.log(String.format("%d movies wrote to the database", noOfPersistedMovies));
-
+            doWork(s3Event, context);
+            return 200;
         } catch (IOException error) {
-            logger.log(error.getMessage());
-            return internalServerError(error.getMessage());
-
+            logger.log(String.format("AWS_REQUEST_ID: %s, IOException: %s", awsRequestId, error.getMessage()));
+            return 500;
         } catch (AmazonS3Exception | AmazonDynamoDBException error) {
-            logger.log(error.getMessage());
-            return amazonServiceError(error);
+            logger.log(String.format("AWS_REQUEST_ID: %s, AmazonS3Exception/AmazonDynamoDBException: %s", awsRequestId, error.getMessage()));
+            return error.getStatusCode();
         }
+    }
 
-        return success();
+    public void doWork(final S3Event s3Event, final Context context) throws IOException, AmazonS3Exception, AmazonDynamoDBException {
+
+        final var logger = context.getLogger();
+        final var awsRequestId = context.getAwsRequestId();
+
+        final var movies = this.storageService.getMovies(s3Event, System.getenv("MOVIES_BUCKET"));
+        logger.log(String.format("AWS_REQUEST_ID: %s, %d movies read from the file", awsRequestId, movies.size()));
+
+        final var noOfPersistedMovies = this.repository.saveMovies(movies, System.getenv("MOVIES_TABLE"));
+        logger.log(String.format("AWS_REQUEST_ID: %s, %d movies wrote to the database", awsRequestId, noOfPersistedMovies));
     }
 }

@@ -23,29 +23,42 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
     @Override
     public MovieAndStat getById(final String id, final String moviesTableName, final String statsTableName) {
 
-        final var result = new MovieAndStat();
+        final var movie = this.getMovieById(id, moviesTableName);
+        final var stat = this.getStatById(id, statsTableName);
 
+        if (movie == null && stat == null) {
+            return null;
+        }
+
+        final var result = new MovieAndStat();
+        result.setId(id);
+
+        if (movie != null) {
+            result.setMovie(movie);
+        }
+
+        if (stat != null) {
+            result.setStat(stat);
+        }
+
+        return result;
+    }
+
+    private Movie getMovieById(final String id, final String moviesTableName) {
         final var moviesConfig = DynamoDBMapperConfig.builder()
                 .withTableNameOverride(new DynamoDBMapperConfig.TableNameOverride(moviesTableName))
                 .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
                 .build();
 
-        final var movie = this.mapper.load(Movie.class, id, moviesConfig);
-        if (movie != null) {
-            result.setMovie(movie);
-        }
+        return this.mapper.load(Movie.class, id, moviesConfig);
+    }
 
+    private Stat getStatById(final String id, final String statsTableName) {
         final var statsConfig = DynamoDBMapperConfig.builder()
                 .withTableNameOverride(new DynamoDBMapperConfig.TableNameOverride(statsTableName))
                 .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
                 .build();
 
-        final var stat = this.mapper.load(Stat.class, id, statsConfig);
-        if (stat != null) {
-            result.setStat(stat);
-        }
-
-        result.setId(id);
-        return result;
+        return this.mapper.load(Stat.class, id, statsConfig);
     }
 }

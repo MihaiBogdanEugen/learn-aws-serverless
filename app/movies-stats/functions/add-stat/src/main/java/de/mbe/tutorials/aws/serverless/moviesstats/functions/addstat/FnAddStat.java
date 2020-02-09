@@ -13,8 +13,7 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
 import javax.inject.Inject;
 import java.io.IOException;
-
-import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
+import java.util.Map;
 
 public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
@@ -33,36 +32,55 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
     }
 
     @Override
-    public APIGatewayV2ProxyResponseEvent handleRequest(APIGatewayV2ProxyRequestEvent apiGatewayRequestEvent, Context context) {
+    public APIGatewayV2ProxyResponseEvent handleRequest(final APIGatewayV2ProxyRequestEvent request, final Context context) {
 
         final var logger = context.getLogger();
-        final var statsTableName = System.getenv("STATS_TABLE");
+        final var awsRequestId = context.getAwsRequestId();
 
-        if (!apiGatewayRequestEvent.getHttpMethod().equalsIgnoreCase("patch")
-                || !apiGatewayRequestEvent.getPathParameters().containsKey("id")
-                || apiGatewayRequestEvent.getBody().isBlank()) {
-            logger.log("Other method than PATCH used, {id} request parameter is missing or body is empty");
-            return badRequest();
-        }
-
-        final var id = apiGatewayRequestEvent.getPathParameters().get("id");
-        logger.log(String.format("saving stats for the movie # %s", id));
+        logger.log(String.format("AWS_REQUEST_ID: %s, RemainingTimeInMillis: %d", awsRequestId, context.getRemainingTimeInMillis()));
 
         try {
-
-            final var stat = OBJECT_MAPPER.readValue(apiGatewayRequestEvent.getBody(), Stat.class);
-
-            this.repository.saveStat(stat, statsTableName);
-
+            final var result = doWork(request, context);
+            return reply(result.getKey(), result.getValue());
         } catch (IOException error) {
-            logger.log(error.getMessage());
-            return internalServerError(error.getMessage());
-
+            logger.log(String.format("AWS_REQUEST_ID: %s, IOException: %s", awsRequestId, error.getMessage()));
+            return reply(500, error.getMessage());
         } catch (AmazonDynamoDBException error) {
-            logger.log(error.getMessage());
-            return amazonServiceError(error);
+            logger.log(String.format("AWS_REQUEST_ID: %s, AmazonDynamoDBException: %s", awsRequestId, error.getMessage()));
+            return reply(error.getStatusCode(), error.getMessage());
+        }
+    }
+
+    private Map.Entry<Integer, String> doWork(final APIGatewayV2ProxyRequestEvent request, final Context context) throws IOException, AmazonDynamoDBException {
+
+        final var logger = context.getLogger();
+        final var awsRequestId = context.getAwsRequestId();
+
+        final var requestHttpMethod = request.getHttpMethod();
+        if (!requestHttpMethod.equalsIgnoreCase("patch")) {
+            return Map.entry(405, String.format("Unsupported http method %s", requestHttpMethod));
         }
 
-        return success();
+        if (request.getBody().isBlank()) {
+            return Map.entry(400, "Empty body");
+        }
+
+        if (!request.getPathParameters().containsKey("id")) {
+            return Map.entry(400, "Missing parameter id");
+        }
+
+        final var id = request.getPathParameters().get("id");
+        logger.log(String.format("AWS_REQUEST_ID: %s, Patching movie with identifier: %s", awsRequestId, id));
+
+        final var stat = OBJECT_MAPPER.readValue(request.getBody(), Stat.class);
+        this.repository.saveStat(stat, System.getenv("STATS_TABLE"));
+        return Map.entry(200, "");
+    }
+
+    private static APIGatewayV2ProxyResponseEvent reply(final int statusCode, final String body) {
+        final var response = new APIGatewayV2ProxyResponseEvent();
+        response.setStatusCode(statusCode);
+        response.setBody(body);
+        return response;
     }
 }

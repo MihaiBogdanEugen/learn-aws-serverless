@@ -43,10 +43,9 @@ subprojects {
     }
 }
 
-configure(subprojects.findAll {it.name != "models" && it.name != "utils"}) {
+configure(subprojects.findAll {it.name != "models"}) {
     dependencies {
         implementation project(":models")
-        implementation project(":utils")
 
         implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
         implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
