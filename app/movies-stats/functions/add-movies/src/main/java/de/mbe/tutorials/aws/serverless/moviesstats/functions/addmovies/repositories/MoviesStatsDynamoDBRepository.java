@@ -1,5 +1,6 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
@@ -9,16 +10,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class MoviesStatsDynamoDBRepository {
+public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
 
     private final DynamoDBMapper mapper;
 
     public MoviesStatsDynamoDBRepository() {
-        final var injector = DaggerAWSInjector.create();
-        final var dynamoDBClient = injector.injectAmazonDynamoDB();
+
+        final var dynamoDBClient = AmazonDynamoDBClientBuilder
+                .standard()
+                .build();
+
         this.mapper = new DynamoDBMapper(dynamoDBClient);
     }
 
+    @Override
     public long saveMovies(final List<Movie> movies, final String moviesTableName) {
 
         final var config = DynamoDBMapperConfig.builder()

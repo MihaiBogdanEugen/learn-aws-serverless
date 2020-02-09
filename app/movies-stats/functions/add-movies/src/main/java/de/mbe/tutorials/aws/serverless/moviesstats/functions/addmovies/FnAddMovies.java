@@ -5,13 +5,34 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsRepository;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesStorageService;
 
 import java.io.IOException;
 
 public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
 
-    private final MoviesS3StorageService STORAGE_SERVICE = new MoviesS3StorageService();
-    private final MoviesStatsDynamoDBRepository REPOSITORY = new MoviesStatsDynamoDBRepository();
+    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
+
+    private MoviesStorageService storageService;
+    private MoviesStatsRepository repository;
+
+    public FnAddMovies() {
+        INJECTOR.injectMembers(this);
+    }
+
+    @Inject
+    public void setStorageService(final MoviesStorageService storageService) {
+        this.storageService = storageService;
+    }
+
+    @Inject
+    public void setRepository(final MoviesStatsRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Integer handleRequest(final S3Event s3Event, final Context context) {
@@ -38,10 +59,10 @@ public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
         final var logger = context.getLogger();
         final var awsRequestId = context.getAwsRequestId();
 
-        final var movies = STORAGE_SERVICE.getMovies(s3Event, System.getenv("MOVIES_BUCKET"));
+        final var movies = this.storageService.getMovies(s3Event, System.getenv("MOVIES_BUCKET"));
         logger.log(String.format("AWS_REQUEST_ID: %s, %d movies read from the file", awsRequestId, movies.size()));
 
-        final var noOfPersistedMovies = REPOSITORY.saveMovies(movies, System.getenv("MOVIES_TABLE"));
+        final var noOfPersistedMovies = this.repository.saveMovies(movies, System.getenv("MOVIES_TABLE"));
         logger.log(String.format("AWS_REQUEST_ID: %s, %d movies wrote to the database", awsRequestId, noOfPersistedMovies));
     }
 }

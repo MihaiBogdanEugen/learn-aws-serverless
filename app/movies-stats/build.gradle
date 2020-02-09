@@ -3,8 +3,8 @@ ext {
     awsLambdaJavaEventsVersion = "2.2.7"
     awsJavaSdkVersion = "1.11.717"
     awsXrayRecorderSdkCoreVersion = "2.4.0"
-    daggerVersion = "2.26"
     gradleVersion = "6.1.1"
+    guiceVersion = "4.2.2"
     junitJupiterVersion = "5.6.0"
 }
 
@@ -51,9 +51,7 @@ configure(subprojects.findAll {it.name != "models"}) {
         implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
         implementation "com.amazonaws:aws-xray-recorder-sdk-core:${awsXrayRecorderSdkCoreVersion}"
         implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsJavaSdkVersion}"
-        implementation "com.google.dagger:dagger:${daggerVersion}"
-
-        annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+        implementation "com.google.inject:guice:${guiceVersion}"
     }
 
     task buildZip(type: Zip) {

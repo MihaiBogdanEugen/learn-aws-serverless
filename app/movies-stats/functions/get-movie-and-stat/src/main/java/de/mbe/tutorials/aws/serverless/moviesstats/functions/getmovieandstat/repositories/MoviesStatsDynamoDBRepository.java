@@ -1,21 +1,26 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-public final class MoviesStatsDynamoDBRepository {
+public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
 
     private final DynamoDBMapper mapper;
 
     public MoviesStatsDynamoDBRepository() {
-        final var injector = DaggerAWSInjector.create();
-        final var dynamoDBClient = injector.injectAmazonDynamoDB();
+
+        final var dynamoDBClient = AmazonDynamoDBClientBuilder
+                .standard()
+                .build();
+
         this.mapper = new DynamoDBMapper(dynamoDBClient);
     }
 
+    @Override
     public MovieAndStat getById(final String id, final String moviesTableName, final String statsTableName) {
 
         final var movie = this.getMovieById(id, moviesTableName);

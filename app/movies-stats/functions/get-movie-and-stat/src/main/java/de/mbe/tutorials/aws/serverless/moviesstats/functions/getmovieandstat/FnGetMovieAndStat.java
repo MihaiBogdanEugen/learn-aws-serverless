@@ -6,14 +6,29 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories.MoviesStatsRepository;
 
 import java.io.IOException;
 import java.util.Map;
 
 public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
+    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final MoviesStatsDynamoDBRepository REPOSITORY = new MoviesStatsDynamoDBRepository();
+
+    private MoviesStatsRepository repository;
+
+    public FnGetMovieAndStat() {
+        INJECTOR.injectMembers(this);
+    }
+
+    @Inject
+    public void setRepository(final MoviesStatsRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final APIGatewayV2ProxyRequestEvent request, final Context context) {
@@ -51,7 +66,7 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
 
         final var id = request.getPathParameters().get("id");
         logger.log(String.format("AWS_REQUEST_ID: %s, Retrieving movie with identifier: %s", awsRequestId, id));
-        final var movieAndStat = REPOSITORY.getById(id, System.getenv("MOVIES_TABLE"), System.getenv("STATS_TABLE"));
+        final var movieAndStat = this.repository.getById(id, System.getenv("MOVIES_TABLE"), System.getenv("STATS_TABLE"));
 
         if (movieAndStat == null) {
             return Map.entry(404, String.format("No records for %s", id));
