@@ -20,12 +20,12 @@ variable handler {
 
 variable memory_size {
   type    = number
-  default = 256
+  default = 2048
 }
 
 variable timeout {
   type    = number
-  default = 60
+  default = 300
 }
 
 variable runtime {
@@ -44,4 +44,17 @@ variable "env" {
 variable "tracing_config_mode" {
   type    = string
   default = "Active"
+}
+
+
+variable layer_name {
+  type = string
+}
+
+variable layer_filename {
+  type = string
+}
+
+variable layer_source_code_hash {
+  type = string
 }
