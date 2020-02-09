@@ -1,34 +1,32 @@
 package de.mbe.tutorials.aws.serverless.moviesstatsapp.models;
 
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDateConverter;
-
 public final class MovieAndStat {
 
     private String id;
     private String name;
     private String countryOfOrigin;
-    private String productionDateAsString;
+    private String productionDate;
     private double budget;
     private boolean directToStreaming;
     private int rottenTomatoesRating;
     private int imdbRating;
     private double boxOffice;
-    private String releaseDateAsString;
+    private String releaseDate;
 
     public MovieAndStat() {
     }
 
-    public MovieAndStat(final String id, final String name, final String countryOfOrigin, final String productionDateAsString, final double budget, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final String releaseDateAsString) {
+    public MovieAndStat(final String id, final String name, final String countryOfOrigin, final String productionDate, final double budget, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final String releaseDate) {
         this.id = id;
         this.name = name;
         this.countryOfOrigin = countryOfOrigin;
-        this.productionDateAsString = productionDateAsString;
+        this.productionDate = productionDate;
         this.budget = budget;
         this.directToStreaming = directToStreaming;
         this.rottenTomatoesRating = rottenTomatoesRating;
         this.imdbRating = imdbRating;
         this.boxOffice = boxOffice;
-        this.releaseDateAsString = releaseDateAsString;
+        this.releaseDate = releaseDate;
     }
 
     public String getId() {
@@ -55,12 +53,12 @@ public final class MovieAndStat {
         this.countryOfOrigin = countryOfOrigin;
     }
 
-    public String getProductionDateAsString() {
-        return productionDateAsString;
+    public String getProductionDate() {
+        return productionDate;
     }
 
-    public void setProductionDateAsString(final String productionDateAsString) {
-        this.productionDateAsString = productionDateAsString;
+    public void setProductionDate(final String productionDate) {
+        this.productionDate = productionDate;
     }
 
     public double getBudget() {
@@ -103,18 +101,18 @@ public final class MovieAndStat {
         this.boxOffice = boxOffice;
     }
 
-    public String getReleaseDateAsString() {
-        return releaseDateAsString;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
-    public void setReleaseDateAsString(final String releaseDateAsString) {
-        this.releaseDateAsString = releaseDateAsString;
+    public void setReleaseDate(final String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public void setMovie(final Movie movie) {
         this.setName(movie.getName());
         this.setCountryOfOrigin(movie.getCountryOfOrigin());
-        this.setProductionDateAsString(LocalDateConverter.convertToString(movie.getProductionDate()));
+        this.setProductionDate(movie.getProductionDate());
         this.setBudget(movie.getBudget());
     }
 
@@ -123,6 +121,6 @@ public final class MovieAndStat {
         this.setRottenTomatoesRating(stat.getRottenTomatoesRating());
         this.setImdbRating(stat.getImdbRating());
         this.setBoxOffice(stat.getBoxOffice());
-        this.setReleaseDateAsString(LocalDateConverter.convertToString(stat.getReleaseDate()));
+        this.setReleaseDate(stat.getReleaseDate());
     }
 }

@@ -4,7 +4,6 @@ import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDateConverter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,7 +47,7 @@ public final class MoviesS3StorageService implements MoviesStorageService {
                                 parts[0],
                                 parts[1],
                                 parts[2],
-                                LocalDateConverter.parseString(parts[3]),
+                                parts[3],
                                 Double.parseDouble(parts[4])));
                     }
                 }

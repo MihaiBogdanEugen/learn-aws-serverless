@@ -3,10 +3,6 @@ package de.mbe.tutorials.aws.serverless.moviesstatsapp.models;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDateConverter;
-
-import java.time.LocalDate;
 
 @DynamoDBTable(tableName = "stats")
 public final class Stat {
@@ -27,15 +23,14 @@ public final class Stat {
     @DynamoDBAttribute(attributeName = "box_office")
     private double boxOffice;
 
-    @DynamoDBTypeConverted(converter = LocalDateConverter.class)
     @DynamoDBAttribute(attributeName = "release_date")
-    private LocalDate releaseDate;
+    private String releaseDate;
 
     public Stat() {
 
     }
 
-    public Stat(final String id, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final LocalDate releaseDate) {
+    public Stat(final String id, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final String releaseDate) {
         this.id = id;
         this.directToStreaming = directToStreaming;
         this.rottenTomatoesRating = rottenTomatoesRating;
@@ -84,11 +79,11 @@ public final class Stat {
         this.boxOffice = boxOffice;
     }
 
-    public LocalDate getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(final LocalDate releaseDate) {
+    public void setReleaseDate(final String releaseDate) {
         this.releaseDate = releaseDate;
     }
 }

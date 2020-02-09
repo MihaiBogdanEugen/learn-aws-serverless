@@ -3,10 +3,6 @@ package de.mbe.tutorials.aws.serverless.moviesstatsapp.models;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.convertors.LocalDateConverter;
-
-import java.time.LocalDate;
 
 @DynamoDBTable(tableName = "movies")
 public final class Movie {
@@ -21,9 +17,8 @@ public final class Movie {
     @DynamoDBAttribute(attributeName = "country_of_origin")
     private String countryOfOrigin;
 
-    @DynamoDBTypeConverted(converter = LocalDateConverter.class)
     @DynamoDBAttribute(attributeName = "production_date")
-    private LocalDate productionDate;
+    private String productionDate;
 
     @DynamoDBAttribute(attributeName = "budget")
     private double budget;
@@ -32,7 +27,7 @@ public final class Movie {
 
     }
 
-    public Movie(final String id, final String name, final String countryOfOrigin, final LocalDate productionDate, final double budget) {
+    public Movie(final String id, final String name, final String countryOfOrigin, final String productionDate, final double budget) {
         this.id = id;
         this.name = name;
         this.countryOfOrigin = countryOfOrigin;
@@ -64,11 +59,11 @@ public final class Movie {
         this.countryOfOrigin = countryOfOrigin;
     }
 
-    public LocalDate getProductionDate() {
+    public String getProductionDate() {
         return productionDate;
     }
 
-    public void setProductionDate(final LocalDate productionDate) {
+    public void setProductionDate(final String productionDate) {
         this.productionDate = productionDate;
     }
 
