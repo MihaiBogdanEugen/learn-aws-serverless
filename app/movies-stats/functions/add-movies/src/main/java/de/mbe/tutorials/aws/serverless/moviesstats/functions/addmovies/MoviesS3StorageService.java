@@ -1,8 +1,7 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services;
+package de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies;
 
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
 
 import java.io.BufferedReader;
@@ -11,17 +10,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MoviesS3StorageService implements MoviesStorageService {
+public final class MoviesS3StorageService {
 
     private final AmazonS3 s3Client;
 
     public MoviesS3StorageService() {
-        this.s3Client = AmazonS3ClientBuilder
-                .standard()
-                .build();
+        final var injector = DaggerAWSInjector.create();
+        this.s3Client = injector.injectAmazonS3();
     }
 
-    @Override
     public List<Movie> getMovies(final S3Event s3Event, final String moviesBucketName) throws IOException {
 
         final var movies = new ArrayList<Movie>();
