@@ -11,14 +11,11 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories.MoviesStatsRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
 
 public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FnGetMovieAndStat.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -36,36 +33,36 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final APIGatewayV2ProxyRequestEvent request, final Context context) {
 
+        final var logger = context.getLogger();
         final var moviesTableName = System.getenv("MOVIES_TABLE");
         final var statsTableName = System.getenv("STATS_TABLE");
 
-
         if (!request.getHttpMethod().equalsIgnoreCase("get")
                 || !request.getPathParameters().containsKey("id")) {
-            LOGGER.error("Other method than GET used or {id} request parameter is missing");
+            logger.log("Other method than GET used or {id} request parameter is missing");
             return badRequest();
         }
 
         final var id = request.getPathParameters().get("id");
-        LOGGER.info("retrieving movie with stats # {}", id);
+        logger.log(String.format("retrieving movie with stats # %s", id));
 
         try {
 
             final var movieAndStat = this.repository.getById(id, moviesTableName, statsTableName);
 
             if (movieAndStat == null) {
-                LOGGER.error("No records for # {}", id);
+                logger.log(String.format("No records for # %s", id));
                 return notFound();
             } else {
                 return success(OBJECT_MAPPER.writeValueAsString(movieAndStat));
             }
 
         } catch (JsonProcessingException error) {
-            LOGGER.error(error.getMessage());
+            logger.log(error.getMessage());
             return internalServerError(error.getMessage());
 
         } catch (AmazonDynamoDBException error) {
-            LOGGER.error(error.getMessage(), error);
+            logger.log(error.getMessage());
             return amazonServiceError(error);
         }
     }

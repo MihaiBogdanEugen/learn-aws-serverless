@@ -5,9 +5,7 @@ ext {
     awsXrayRecorderSdkCoreVersion = "2.4.0"
     gradleVersion = "6.1.1"
     guiceVersion = "4.2.2"
-    jacksonVersion = "2.10.2"
     junitJupiterVersion = "5.6.0"
-    lambdaLoggingVersion = "1.0.3"
 }
 
 subprojects {
@@ -53,13 +51,12 @@ configure(subprojects.findAll {it.name != "models" && it.name != "utils"}) {
         implementation "com.amazonaws:aws-lambda-java-core:${awsLambdaJavaCoreVersion}"
         implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
         implementation "com.amazonaws:aws-xray-recorder-sdk-core:${awsXrayRecorderSdkCoreVersion}"
+        implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsJavaSdkVersion}"
         implementation "com.google.inject:guice:${guiceVersion}"
-        implementation "io.symphonia:lambda-logging:${lambdaLoggingVersion}:no-config"
     }
 
     task buildZip(type: Zip) {
         from compileJava
-        from processResources
         into("lib") {
             from configurations.runtimeClasspath
         }

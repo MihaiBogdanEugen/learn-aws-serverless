@@ -11,8 +11,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesStorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -20,7 +18,6 @@ import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayRes
 
 public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FnAddMovies.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
 
     private MoviesStorageService storageService;
@@ -43,23 +40,24 @@ public final class FnAddMovies implements RequestHandler<S3Event, APIGatewayV2Pr
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final S3Event s3Event, final Context context) {
 
+        final var logger = context.getLogger();
         final var moviesTableName = System.getenv("MOVIES_TABLE");
         final var moviesBucketName = System.getenv("MOVIES_BUCKET");
 
         try {
 
             final var movies = this.storageService.getMovies(s3Event, moviesBucketName);
-            LOGGER.info("{} movies read from the file", movies.size());
+            logger.log(String.format("%d movies read from the file", movies.size()));
 
             final var noOfPersistedMovies = this.repository.saveMovies(movies, moviesTableName);
-            LOGGER.info("{} movies wrote to the database", noOfPersistedMovies);
+            logger.log(String.format("%d movies wrote to the database", noOfPersistedMovies));
 
         } catch (IOException error) {
-            LOGGER.error(error.getMessage());
+            logger.log(error.getMessage());
             return internalServerError(error.getMessage());
 
         } catch (AmazonS3Exception | AmazonDynamoDBException error) {
-            LOGGER.error(error.getMessage(), error);
+            logger.log(error.getMessage());
             return amazonServiceError(error);
         }
 

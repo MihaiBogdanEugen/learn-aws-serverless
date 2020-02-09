@@ -5,22 +5,19 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayResponses.*;
 
 public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FnAddStat.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -38,17 +35,18 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(APIGatewayV2ProxyRequestEvent apiGatewayRequestEvent, Context context) {
 
+        final var logger = context.getLogger();
         final var statsTableName = System.getenv("STATS_TABLE");
 
         if (!apiGatewayRequestEvent.getHttpMethod().equalsIgnoreCase("patch")
                 || !apiGatewayRequestEvent.getPathParameters().containsKey("id")
                 || apiGatewayRequestEvent.getBody().isBlank()) {
-            LOGGER.error("Other method than PATCH used, {id} request parameter is missing or body is empty");
+            logger.log("Other method than PATCH used, {id} request parameter is missing or body is empty");
             return badRequest();
         }
 
         final var id = apiGatewayRequestEvent.getPathParameters().get("id");
-        LOGGER.info("saving stats for the movie # {}", id);
+        logger.log(String.format("saving stats for the movie # %s", id));
 
         try {
 
@@ -56,12 +54,12 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
             this.repository.saveStat(stat, statsTableName);
 
-        } catch (JsonProcessingException error) {
-            LOGGER.error(error.getMessage());
+        } catch (IOException error) {
+            logger.log(error.getMessage());
             return internalServerError(error.getMessage());
 
         } catch (AmazonDynamoDBException error) {
-            LOGGER.error(error.getMessage(), error);
+            logger.log(error.getMessage());
             return amazonServiceError(error);
         }
 
