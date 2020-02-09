@@ -6,29 +6,21 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsDynamoDBRepository;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
 
 public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private MoviesStatsRepository repository;
+    private final MoviesStatsRepository repository;
 
     public FnAddStat() {
-        INJECTOR.injectMembers(this);
-    }
-
-    @Inject
-    public void setRepository(final MoviesStatsRepository repository) {
-        this.repository = repository;
+        this.repository = new MoviesStatsDynamoDBRepository();
     }
 
     @Override

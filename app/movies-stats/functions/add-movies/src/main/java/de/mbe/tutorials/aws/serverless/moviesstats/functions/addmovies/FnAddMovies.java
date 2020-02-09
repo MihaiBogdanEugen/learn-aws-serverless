@@ -5,33 +5,21 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsDynamoDBRepository;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsRepository;
+import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesS3StorageService;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesStorageService;
 
 import java.io.IOException;
 
 public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
 
-    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
-
-    private MoviesStorageService storageService;
-    private MoviesStatsRepository repository;
+    private final MoviesStorageService storageService;
+    private final MoviesStatsRepository repository;
 
     public FnAddMovies() {
-        INJECTOR.injectMembers(this);
-    }
-
-    @Inject
-    public void setStorageService(final MoviesStorageService storageService) {
-        this.storageService = storageService;
-    }
-
-    @Inject
-    public void setRepository(final MoviesStatsRepository repository) {
-        this.repository = repository;
+        this.storageService = new MoviesS3StorageService();
+        this.repository = new MoviesStatsDynamoDBRepository();
     }
 
     @Override
