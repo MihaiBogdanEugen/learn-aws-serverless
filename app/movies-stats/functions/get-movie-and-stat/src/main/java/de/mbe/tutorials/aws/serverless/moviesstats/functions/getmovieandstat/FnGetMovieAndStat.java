@@ -6,10 +6,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -21,19 +18,13 @@ import static de.mbe.tutorials.aws.serverless.moviesstatsapp.utils.APIGatewayRes
 
 public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
     private static final Logger LOGGER = LoggerFactory.getLogger(FnGetMovieAndStat.class);
+    private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final ObjectMapper objectMapper;
     private MoviesStatsRepository repository;
 
     public FnGetMovieAndStat() {
-
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         INJECTOR.injectMembers(this);
     }
 
@@ -66,7 +57,7 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
                 LOGGER.error("No records for # {}", id);
                 return notFound();
             } else {
-                return success(this.objectMapper.writeValueAsString(movieAndStat));
+                return success(OBJECT_MAPPER.writeValueAsString(movieAndStat));
             }
 
         } catch (JsonProcessingException error) {

@@ -6,10 +6,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsRepository;
@@ -25,18 +22,11 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FnAddStat.class);
     private static final Injector INJECTOR = Guice.createInjector(new GuiceModule());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final ObjectMapper objectMapper;
     private MoviesStatsRepository repository;
 
     public FnAddStat() {
-
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-
         INJECTOR.injectMembers(this);
     }
 
@@ -62,7 +52,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
         try {
 
-            final var stat = this.objectMapper.readValue(apiGatewayRequestEvent.getBody(), Stat.class);
+            final var stat = OBJECT_MAPPER.readValue(apiGatewayRequestEvent.getBody(), Stat.class);
 
             this.repository.saveStat(stat, statsTableName);
 
