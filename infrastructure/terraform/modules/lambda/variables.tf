@@ -58,3 +58,7 @@ variable layer_filename {
 variable layer_source_code_hash {
   type = string
 }
+
+variable provisioned_concurrent_executions {
+  type = number
+}

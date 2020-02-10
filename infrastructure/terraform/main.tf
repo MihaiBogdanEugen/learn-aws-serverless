@@ -7,10 +7,6 @@ provider aws {
   version = "~> 2.47"
 }
 
-provider archive {
-  version = "~> 1.3.0"
-}
-
 locals {
   add_movies_lambda_dist_filename               = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies.zip"
   add_movies_lambda_layer_dist_filename         = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies-layer.zip"
@@ -222,16 +218,17 @@ module get_movie_and_stat_lambda_role {
 ############################################################################
 
 module add_movies_lambda {
-  source                 = "./modules/lambda"
-  description            = "Read movies from an S3 file and dump them into the DynamoDB table"
-  filename               = local.add_movies_lambda_dist_filename
-  layer_filename         = local.add_movies_lambda_layer_dist_filename
-  source_code_hash       = filebase64sha256(local.add_movies_lambda_dist_filename)
-  layer_source_code_hash = filebase64sha256(local.add_movies_lambda_layer_dist_filename)
-  function_name          = "fn_add_movies"
-  layer_name             = "fn_add_movies_layer"
-  handler                = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.FnAddMovies::handleRequest"
-  role                   = module.add_movies_lambda_role.arn
+  source                            = "./modules/lambda"
+  function_name                     = "fn_add_movies"
+  description                       = "Read movies from an S3 file and dump them into the DynamoDB table"
+  role                              = module.add_movies_lambda_role.arn
+  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.FnAddMovies::handleRequest"
+  filename                          = local.add_movies_lambda_dist_filename
+  source_code_hash                  = filebase64sha256(local.add_movies_lambda_dist_filename)
+  layer_name                        = "fn_add_movies_layer"
+  layer_filename                    = local.add_movies_lambda_layer_dist_filename
+  layer_source_code_hash            = filebase64sha256(local.add_movies_lambda_layer_dist_filename)
+  provisioned_concurrent_executions = 5
   env = {
     MOVIES_BUCKET = module.movies_bucket.name
     MOVIES_TABLE  = module.movies_table.name
@@ -239,32 +236,34 @@ module add_movies_lambda {
 }
 
 module add_stat_lambda {
-  source                 = "./modules/lambda"
-  description            = "Receive a PATCH request from the API GW and save the resource in the DynamoDB table"
-  filename               = local.add_stat_lambda_dist_filename
-  layer_filename         = local.add_stat_lambda_layer_dist_filename
-  source_code_hash       = filebase64sha256(local.add_stat_lambda_dist_filename)
-  layer_source_code_hash = filebase64sha256(local.add_stat_lambda_layer_dist_filename)
-  function_name          = "fn_add_stat"
-  layer_name             = "fn_add_stat_layer"
-  handler                = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.FnAddStat::handleRequest"
-  role                   = module.add_stat_lambda_role.arn
+  source                            = "./modules/lambda"
+  function_name                     = "fn_add_stat"
+  description                       = "Receive a PATCH request from the API GW and save the resource in the DynamoDB table"
+  role                              = module.add_stat_lambda_role.arn
+  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.FnAddStat::handleRequest"
+  filename                          = local.add_stat_lambda_dist_filename
+  source_code_hash                  = filebase64sha256(local.add_stat_lambda_dist_filename)
+  layer_name                        = "fn_add_stat_layer"
+  layer_filename                    = local.add_stat_lambda_layer_dist_filename
+  layer_source_code_hash            = filebase64sha256(local.add_stat_lambda_layer_dist_filename)
+  provisioned_concurrent_executions = 5
   env = {
     STATS_TABLE = module.stats_table.name
   }
 }
 
 module get_movie_and_stat_lambda {
-  source                 = "./modules/lambda"
-  description            = "Receive a GET request from the API GW and retreive the resource from the DynamoDB table"
-  filename               = local.get_movie_and_stat_lambda_dist_filename
-  layer_filename         = local.get_movie_and_stat_lambda_layer_dist_filename
-  source_code_hash       = filebase64sha256(local.get_movie_and_stat_lambda_dist_filename)
-  layer_source_code_hash = filebase64sha256(local.get_movie_and_stat_lambda_layer_dist_filename)
-  function_name          = "fn_get_movie_and_stat"
-  layer_name             = "fn_get_movie_and_stat_layer"
-  handler                = "de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.FnGetMovieAndStat::handleRequest"
-  role                   = module.get_movie_and_stat_lambda_role.arn
+  source                            = "./modules/lambda"
+  function_name                     = "fn_get_movie_and_stat"
+  description                       = "Receive a GET request from the API GW and retreive the resource from the DynamoDB table"
+  role                              = module.get_movie_and_stat_lambda_role.arn
+  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.FnGetMovieAndStat::handleRequest"
+  filename                          = local.get_movie_and_stat_lambda_dist_filename
+  source_code_hash                  = filebase64sha256(local.get_movie_and_stat_lambda_dist_filename)
+  layer_name                        = "fn_get_movie_and_stat_layer"
+  layer_filename                    = local.get_movie_and_stat_lambda_layer_dist_filename
+  layer_source_code_hash            = filebase64sha256(local.get_movie_and_stat_lambda_layer_dist_filename)
+  provisioned_concurrent_executions = 5
   env = {
     MOVIES_TABLE = module.movies_table.name
     STATS_TABLE  = module.stats_table.name
