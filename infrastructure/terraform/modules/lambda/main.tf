@@ -31,7 +31,7 @@ resource aws_lambda_alias lambda_alias {
   depends_on       = [aws_lambda_function.lambda]
   name             = "live"
   description      = "Alias for ${var.function_name}"
-  function_name    = aws_lambda_function.lambda.function_name
+  function_name    = aws_lambda_function.lambda.arn
   function_version = aws_lambda_function.lambda.version
 
   lifecycle {
