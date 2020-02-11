@@ -5,8 +5,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsDynamoDBRepository;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesS3StorageService;
 
 import java.io.IOException;
 

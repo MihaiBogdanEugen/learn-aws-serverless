@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsDynamoDBRepository;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
 import java.io.IOException;
