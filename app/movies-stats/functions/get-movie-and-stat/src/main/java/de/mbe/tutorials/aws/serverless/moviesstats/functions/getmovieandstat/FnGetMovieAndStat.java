@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEven
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories.MoviesStatsDynamoDBRepository;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.repositories.MoviesStatsRepository;
 
 import java.io.IOException;
 import java.util.Map;
@@ -16,7 +15,7 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private MoviesStatsRepository repository;
+    private final MoviesStatsDynamoDBRepository repository;
 
     public FnGetMovieAndStat() {
         this.repository = new MoviesStatsDynamoDBRepository();

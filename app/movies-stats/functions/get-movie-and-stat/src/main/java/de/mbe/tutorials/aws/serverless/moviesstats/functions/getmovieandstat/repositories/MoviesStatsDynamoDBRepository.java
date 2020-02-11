@@ -7,7 +7,7 @@ import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Movie;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
+public final class MoviesStatsDynamoDBRepository {
 
     private final DynamoDBMapper mapper;
 
@@ -20,7 +20,6 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
         this.mapper = new DynamoDBMapper(dynamoDBClient);
     }
 
-    @Override
     public MovieAndStat getById(final String id, final String moviesTableName, final String statsTableName) {
 
         final var movie = this.getMovieById(id, moviesTableName);

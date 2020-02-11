@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
+public final class MoviesStatsDynamoDBRepository {
 
     private final DynamoDBMapper mapper;
 
@@ -23,7 +23,6 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
         this.mapper = new DynamoDBMapper(dynamoDBClient);
     }
 
-    @Override
     public long saveMovies(final List<Movie> movies, final String moviesTableName) {
 
         final var config = DynamoDBMapperConfig.builder()

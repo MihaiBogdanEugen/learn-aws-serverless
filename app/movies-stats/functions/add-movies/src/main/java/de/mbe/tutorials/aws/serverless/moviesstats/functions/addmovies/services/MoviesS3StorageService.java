@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MoviesS3StorageService implements MoviesStorageService {
+public final class MoviesS3StorageService {
 
     private final AmazonS3 s3Client;
 
@@ -21,7 +21,6 @@ public final class MoviesS3StorageService implements MoviesStorageService {
                 .build();
     }
 
-    @Override
     public List<Movie> getMovies(final S3Event s3Event, final String moviesBucketName) throws IOException {
 
         final var movies = new ArrayList<Movie>();

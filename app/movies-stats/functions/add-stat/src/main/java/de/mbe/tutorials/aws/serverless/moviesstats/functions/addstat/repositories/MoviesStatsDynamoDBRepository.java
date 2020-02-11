@@ -5,7 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
-public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepository {
+public final class MoviesStatsDynamoDBRepository {
 
     private final DynamoDBMapper mapper;
 
@@ -18,7 +18,6 @@ public final class MoviesStatsDynamoDBRepository implements MoviesStatsRepositor
         this.mapper = new DynamoDBMapper(dynamoDBClient);
     }
 
-    @Override
     public void saveStat(final Stat stat, final String statsTableName) {
 
         final var config = DynamoDBMapperConfig.builder()

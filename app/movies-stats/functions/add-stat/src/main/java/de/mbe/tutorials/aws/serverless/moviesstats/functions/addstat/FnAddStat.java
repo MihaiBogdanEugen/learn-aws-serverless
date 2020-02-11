@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEven
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsDynamoDBRepository;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final MoviesStatsRepository repository;
+    private final MoviesStatsDynamoDBRepository repository;
 
     public FnAddStat() {
         this.repository = new MoviesStatsDynamoDBRepository();

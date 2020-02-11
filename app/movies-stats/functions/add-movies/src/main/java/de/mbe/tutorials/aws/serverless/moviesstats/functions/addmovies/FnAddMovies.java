@@ -6,16 +6,14 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsDynamoDBRepository;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.repositories.MoviesStatsRepository;
 import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesS3StorageService;
-import de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.services.MoviesStorageService;
 
 import java.io.IOException;
 
 public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
 
-    private final MoviesStorageService storageService;
-    private final MoviesStatsRepository repository;
+    private final MoviesS3StorageService storageService;
+    private final MoviesStatsDynamoDBRepository repository;
 
     public FnAddMovies() {
         this.storageService = new MoviesS3StorageService();
