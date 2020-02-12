@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UploadFromS3ToDynamoDBService {
+public final class UploadFromS3ToDynamoDBService {
 
     private final AmazonS3 s3Client;
     private final DynamoDBMapper mapper;
