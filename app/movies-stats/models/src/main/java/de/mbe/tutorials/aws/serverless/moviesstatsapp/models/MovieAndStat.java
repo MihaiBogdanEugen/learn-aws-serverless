@@ -117,7 +117,7 @@ public final class MovieAndStat {
     }
 
     public void setStat(final Stat stat) {
-        this.setDirectToStreaming(stat.isDirectToStreaming());
+        this.setDirectToStreaming(stat.getDirectToStreaming());
         this.setRottenTomatoesRating(stat.getRottenTomatoesRating());
         this.setImdbRating(stat.getImdbRating());
         this.setBoxOffice(stat.getBoxOffice());
