@@ -1,11 +1,16 @@
 package de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
 
 import java.io.IOException;
@@ -13,12 +18,20 @@ import java.util.Map;
 
 public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private final MoviesStatsDynamoDBRepository repository;
+    private final ObjectMapper mapper;
+    private final MoviesStatsRepository repository;
 
     public FnAddStat() {
-        this.repository = new MoviesStatsDynamoDBRepository();
+
+        this.mapper = new ObjectMapper();
+        this.mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        final var dynamoDBClient = AmazonDynamoDBClientBuilder
+                .standard()
+                .build();
+
+        this.repository = new MoviesStatsRepository(dynamoDBClient, System.getenv("STATS_TABLE"));
     }
 
     @Override
@@ -62,8 +75,8 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
         final var id = request.getPathParameters().get("id");
         logger.log(String.format("AWS_REQUEST_ID: %s, Patching movie with identifier: %s", awsRequestId, id));
 
-        final var stat = OBJECT_MAPPER.readValue(request.getBody(), Stat.class);
-        this.repository.saveStat(stat, System.getenv("STATS_TABLE"));
+        final var stat = this.mapper.readValue(request.getBody(), Stat.class);
+        this.repository.saveStat(stat);
         return Map.entry(200, "");
     }
 
