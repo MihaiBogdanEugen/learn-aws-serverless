@@ -1,0 +1,4 @@
+dependencies {
+    implementation "com.amazonaws:aws-java-sdk-s3:${awsJavaSdkVersion}"
+    implementation "software.amazon.awssdk:s3"
+}
