@@ -21,13 +21,13 @@ public final class Movie {
     private String productionDate;
 
     @DynamoDBAttribute(attributeName = "budget")
-    private double budget;
+    private Double budget;
 
     public Movie() {
 
     }
 
-    public Movie(final String id, final String name, final String countryOfOrigin, final String productionDate, final double budget) {
+    public Movie(final String id, final String name, final String countryOfOrigin, final String productionDate, final Double budget) {
         this.id = id;
         this.name = name;
         this.countryOfOrigin = countryOfOrigin;
@@ -67,11 +67,11 @@ public final class Movie {
         this.productionDate = productionDate;
     }
 
-    public double getBudget() {
+    public Double getBudget() {
         return budget;
     }
 
-    public void setBudget(final double budget) {
+    public void setBudget(final Double budget) {
         this.budget = budget;
     }
 }

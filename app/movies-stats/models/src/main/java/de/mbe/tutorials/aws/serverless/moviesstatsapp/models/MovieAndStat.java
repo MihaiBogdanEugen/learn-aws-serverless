@@ -6,17 +6,17 @@ public final class MovieAndStat {
     private String name;
     private String countryOfOrigin;
     private String productionDate;
-    private double budget;
-    private boolean directToStreaming;
-    private int rottenTomatoesRating;
-    private int imdbRating;
-    private double boxOffice;
+    private Double budget;
+    private Boolean directToStreaming;
+    private Integer rottenTomatoesRating;
+    private Integer imdbRating;
+    private Double boxOffice;
     private String releaseDate;
 
     public MovieAndStat() {
     }
 
-    public MovieAndStat(final String id, final String name, final String countryOfOrigin, final String productionDate, final double budget, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final String releaseDate) {
+    public MovieAndStat(final String id, final String name, final String countryOfOrigin, final String productionDate, final Double budget, final Boolean directToStreaming, final Integer rottenTomatoesRating, final Integer imdbRating, final Double boxOffice, final String releaseDate) {
         this.id = id;
         this.name = name;
         this.countryOfOrigin = countryOfOrigin;
@@ -61,43 +61,43 @@ public final class MovieAndStat {
         this.productionDate = productionDate;
     }
 
-    public double getBudget() {
+    public Double getBudget() {
         return budget;
     }
 
-    public void setBudget(final double budget) {
+    public void setBudget(final Double budget) {
         this.budget = budget;
     }
 
-    public boolean isDirectToStreaming() {
+    public Boolean isDirectToStreaming() {
         return directToStreaming;
     }
 
-    public void setDirectToStreaming(final boolean directToStreaming) {
+    public void setDirectToStreaming(final Boolean directToStreaming) {
         this.directToStreaming = directToStreaming;
     }
 
-    public int getRottenTomatoesRating() {
+    public Integer getRottenTomatoesRating() {
         return rottenTomatoesRating;
     }
 
-    public void setRottenTomatoesRating(final int rottenTomatoesRating) {
+    public void setRottenTomatoesRating(final Integer rottenTomatoesRating) {
         this.rottenTomatoesRating = rottenTomatoesRating;
     }
 
-    public int getImdbRating() {
+    public Integer getImdbRating() {
         return imdbRating;
     }
 
-    public void setImdbRating(final int imdbRating) {
+    public void setImdbRating(final Integer imdbRating) {
         this.imdbRating = imdbRating;
     }
 
-    public double getBoxOffice() {
+    public Double getBoxOffice() {
         return boxOffice;
     }
 
-    public void setBoxOffice(final double boxOffice) {
+    public void setBoxOffice(final Double boxOffice) {
         this.boxOffice = boxOffice;
     }
 

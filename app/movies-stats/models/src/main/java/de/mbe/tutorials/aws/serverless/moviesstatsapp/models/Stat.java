@@ -12,16 +12,16 @@ public final class Stat {
     private String id;
 
     @DynamoDBAttribute(attributeName = "direct_to_streaming")
-    private boolean directToStreaming;
+    private Boolean directToStreaming;
 
     @DynamoDBAttribute(attributeName = "rotten_tomatoes_rating")
-    private int rottenTomatoesRating;
+    private Integer rottenTomatoesRating;
 
     @DynamoDBAttribute(attributeName = "imdb_rating")
-    private int imdbRating;
+    private Integer imdbRating;
 
     @DynamoDBAttribute(attributeName = "box_office")
-    private double boxOffice;
+    private Double boxOffice;
 
     @DynamoDBAttribute(attributeName = "release_date")
     private String releaseDate;
@@ -30,7 +30,7 @@ public final class Stat {
 
     }
 
-    public Stat(final String id, final boolean directToStreaming, final int rottenTomatoesRating, final int imdbRating, final double boxOffice, final String releaseDate) {
+    public Stat(final String id, final Boolean directToStreaming, final Integer rottenTomatoesRating, final Integer imdbRating, final Double boxOffice, final String releaseDate) {
         this.id = id;
         this.directToStreaming = directToStreaming;
         this.rottenTomatoesRating = rottenTomatoesRating;
@@ -47,35 +47,35 @@ public final class Stat {
         this.id = id;
     }
 
-    public boolean isDirectToStreaming() {
+    public Boolean isDirectToStreaming() {
         return directToStreaming;
     }
 
-    public void setDirectToStreaming(final boolean directToStreaming) {
+    public void setDirectToStreaming(final Boolean directToStreaming) {
         this.directToStreaming = directToStreaming;
     }
 
-    public int getRottenTomatoesRating() {
+    public Integer getRottenTomatoesRating() {
         return rottenTomatoesRating;
     }
 
-    public void setRottenTomatoesRating(final int rottenTomatoesRating) {
+    public void setRottenTomatoesRating(final Integer rottenTomatoesRating) {
         this.rottenTomatoesRating = rottenTomatoesRating;
     }
 
-    public int getImdbRating() {
+    public Integer getImdbRating() {
         return imdbRating;
     }
 
-    public void setImdbRating(final int imdbRating) {
+    public void setImdbRating(final Integer imdbRating) {
         this.imdbRating = imdbRating;
     }
 
-    public double getBoxOffice() {
+    public Double getBoxOffice() {
         return boxOffice;
     }
 
-    public void setBoxOffice(final double boxOffice) {
+    public void setBoxOffice(final Double boxOffice) {
         this.boxOffice = boxOffice;
     }
 
