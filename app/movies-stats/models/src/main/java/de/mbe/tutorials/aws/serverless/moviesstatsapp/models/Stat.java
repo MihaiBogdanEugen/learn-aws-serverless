@@ -47,7 +47,7 @@ public final class Stat {
         this.id = id;
     }
 
-    public Boolean isDirectToStreaming() {
+    public Boolean getDirectToStreaming() {
         return directToStreaming;
     }
 

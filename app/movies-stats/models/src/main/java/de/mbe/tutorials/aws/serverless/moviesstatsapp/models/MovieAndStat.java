@@ -69,7 +69,7 @@ public final class MovieAndStat {
         this.budget = budget;
     }
 
-    public Boolean isDirectToStreaming() {
+    public Boolean getDirectToStreaming() {
         return directToStreaming;
     }
 
