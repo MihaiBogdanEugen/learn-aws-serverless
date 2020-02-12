@@ -1,23 +1,32 @@
 package de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 import java.io.IOException;
 import java.util.Map;
 
 public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private final MoviesStatsDynamoDBRepository repository;
+    private final ObjectMapper mapper;
+    private final MoviesStatsRepository repository;
 
     public FnGetMovieAndStat() {
-        this.repository = new MoviesStatsDynamoDBRepository();
+
+        this.mapper = new ObjectMapper();
+        this.mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+
+        final var dynamoDBClient = AmazonDynamoDBClientBuilder
+                .standard()
+                .build();
+
+        this.repository = new MoviesStatsRepository(dynamoDBClient, System.getenv("MOVIES_TABLE"), System.getenv("STATS_TABLE"));
     }
 
     @Override
@@ -29,11 +38,15 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
         logger.log(String.format("AWS_REQUEST_ID: %s, RemainingTimeInMillis: %d", awsRequestId, context.getRemainingTimeInMillis()));
 
         try {
+
             final var result = doWork(request, context);
             return reply(result.getKey(), result.getValue());
+
         } catch (IOException error) {
+
             logger.log(String.format("AWS_REQUEST_ID: %s, IOException: %s", awsRequestId, error.getMessage()));
             return reply(500, error.getMessage());
+
         } catch (AmazonDynamoDBException error) {
             logger.log(String.format("AWS_REQUEST_ID: %s, AmazonDynamoDBException: %s", awsRequestId, error.getMessage()));
             return reply(error.getStatusCode(), error.getMessage());
@@ -56,13 +69,13 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
 
         final var id = request.getPathParameters().get("id");
         logger.log(String.format("AWS_REQUEST_ID: %s, Retrieving movie with identifier: %s", awsRequestId, id));
-        final var movieAndStat = this.repository.getById(id, System.getenv("MOVIES_TABLE"), System.getenv("STATS_TABLE"));
+        final var movieAndStat = this.repository.getById(id);
 
         if (movieAndStat == null) {
             return Map.entry(404, String.format("No records for %s", id));
         }
 
-        final var resultAsString = OBJECT_MAPPER.writeValueAsString(movieAndStat);
+        final var resultAsString = this.mapper.writeValueAsString(movieAndStat);
         return Map.entry(200, resultAsString);
     }
 

@@ -4,7 +4,7 @@ ext {
     awsJavaSdkVersion = "1.11.717"
     awsXrayRecorderSdkCoreVersion = "2.4.0"
     gradleVersion = "6.1.1"
-    junitJupiterVersion = "5.6.0"
+    jacksonVersion = "2.10.2"
 }
 
 subprojects {
