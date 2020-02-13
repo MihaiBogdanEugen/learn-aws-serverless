@@ -22,9 +22,11 @@ resource aws_lambda_function lambda {
 
 resource aws_lambda_layer_version lambda_layer {
   filename            = var.layer_filename
+  description         = "layer for ${var.function_name}"
   layer_name          = var.layer_name
   source_code_hash    = base64sha256(var.layer_source_code_hash)
   compatible_runtimes = [var.runtime]
+  license_info        = "private"
 }
 
 resource aws_lambda_alias lambda_alias {

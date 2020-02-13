@@ -12,7 +12,9 @@ clean:
 
 ## test: Run the tests
 test:
-	cd app/movies-stats && ./gradlew test
+	cd app/movies-stats && \
+	./gradlew clean && \
+	./gradlew test
 
 ## package: Build and package the source code into an uber-zip
 package: test
@@ -26,23 +28,23 @@ fmt: check-terraform
 	cd infrastructure/terraform && terraform fmt -recursive
 
 ## init: Initialize a Terraform working directory
-init: fmt
+init: check-terraform
 	cd infrastructure/terraform && terraform init
 
 ## validate: Validates the Terraform files
-validate: package init
+validate: package check-terraform
 	cd infrastructure/terraform && terraform validate
 
 ## plan: Generate and show a Terraform execution plan
-plan: validate
+plan: check-terraform
 	cd infrastructure/terraform && terraform plan
 
 ## apply: Build or change Terraform infrastructure
-apply: check-tf-var-aws-region check-tf-var-aws-account-id plan
+apply: check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
 	cd infrastructure/terraform && terraform apply -auto-approve
 
 ## destroy: Destroy Terraform-managed infrastructure
-destroy: check-terraform init
+destroy: check-terraform
 	cd infrastructure/terraform && terraform destroy -auto-approve
 
 ## output: Read an output from a Terraform state file

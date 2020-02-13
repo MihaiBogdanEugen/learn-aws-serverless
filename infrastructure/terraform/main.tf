@@ -4,7 +4,7 @@ terraform {
 
 provider aws {
   region  = var.aws_region
-  version = "~> 2.47"
+  version = "2.48.0"
 }
 
 locals {
@@ -14,6 +14,7 @@ locals {
   add_stat_lambda_layer_dist_filename           = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat-layer.zip"
   get_movie_and_stat_lambda_dist_filename       = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat.zip"
   get_movie_and_stat_lambda_layer_dist_filename = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat-layer.zip"
+  provisioned_concurrent_executions             = 1
 }
 
 ############################################################################
@@ -228,7 +229,7 @@ module add_movies_lambda {
   layer_name                        = "fn_add_movies_layer"
   layer_filename                    = local.add_movies_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.add_movies_lambda_layer_dist_filename)
-  provisioned_concurrent_executions = 5
+  provisioned_concurrent_executions = local.provisioned_concurrent_executions
   env = {
     MOVIES_BUCKET = module.movies_bucket.name
     MOVIES_TABLE  = module.movies_table.name
@@ -246,7 +247,7 @@ module add_stat_lambda {
   layer_name                        = "fn_add_stat_layer"
   layer_filename                    = local.add_stat_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.add_stat_lambda_layer_dist_filename)
-  provisioned_concurrent_executions = 5
+  provisioned_concurrent_executions = local.provisioned_concurrent_executions
   env = {
     STATS_TABLE = module.stats_table.name
   }
@@ -263,7 +264,7 @@ module get_movie_and_stat_lambda {
   layer_name                        = "fn_get_movie_and_stat_layer"
   layer_filename                    = local.get_movie_and_stat_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.get_movie_and_stat_lambda_layer_dist_filename)
-  provisioned_concurrent_executions = 5
+  provisioned_concurrent_executions = local.provisioned_concurrent_executions
   env = {
     MOVIES_TABLE = module.movies_table.name
     STATS_TABLE  = module.stats_table.name
