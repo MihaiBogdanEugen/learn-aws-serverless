@@ -9,10 +9,14 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.handlers.TracingHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
+
+    private static final Logger LOGGER = LogManager.getLogger(FnAddMovies.class);
 
     private final UploadFromS3ToDynamoDBService uploadService;
 
@@ -38,19 +42,16 @@ public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
     @Override
     public Integer handleRequest(final S3Event s3Event, final Context context) {
 
-        final var logger = context.getLogger();
-        final var awsRequestId = context.getAwsRequestId();
-
-        logger.log(String.format("AWS_REQUEST_ID: %s, RemainingTimeInMillis: %d", awsRequestId, context.getRemainingTimeInMillis()));
+        LOGGER.info("RemainingTimeInMillis {}", context.getRemainingTimeInMillis());
 
         try {
             this.uploadService.uploadMovies(s3Event);
             return 200;
         } catch (IOException error) {
-            logger.log(String.format("AWS_REQUEST_ID: %s, IOException: %s", awsRequestId, error.getMessage()));
+            LOGGER.error(error.getMessage(), error);
             return 500;
         } catch (AmazonS3Exception | AmazonDynamoDBException error) {
-            logger.log(String.format("AWS_REQUEST_ID: %s, AmazonS3Exception/AmazonDynamoDBException: %s", awsRequestId, error.getMessage()));
+            LOGGER.error(error.getMessage(), error);
             return error.getStatusCode();
         }
     }

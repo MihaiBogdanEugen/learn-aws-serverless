@@ -12,10 +12,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
+
+    private static final Logger LOGGER = LogManager.getLogger(FnAddStat.class);
 
     private final ObjectMapper mapper;
     private final DynamoDBRepository repository;
@@ -39,10 +43,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
     @Override
     public APIGatewayV2ProxyResponseEvent handleRequest(final APIGatewayV2ProxyRequestEvent request, final Context context) {
 
-        final var logger = context.getLogger();
-        final var awsRequestId = context.getAwsRequestId();
-
-        logger.log(String.format("AWS_REQUEST_ID: %s, RemainingTimeInMillis: %d", awsRequestId, context.getRemainingTimeInMillis()));
+        LOGGER.info("RemainingTimeInMillis {}", context.getRemainingTimeInMillis());
 
         final var requestHttpMethod = request.getHttpMethod();
         if (!requestHttpMethod.equalsIgnoreCase("patch")) {
@@ -58,14 +59,14 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
         }
 
         final var id = request.getPathParameters().get("id");
-        logger.log(String.format("AWS_REQUEST_ID: %s, Patching movie with identifier: %s", awsRequestId, id));
+        LOGGER.info("Patching movie with the identifier {}", id);
 
         Stat stat;
 
         try {
             stat = this.mapper.readValue(request.getBody(), Stat.class);
         } catch (IOException error) {
-            logger.log(String.format("AWS_REQUEST_ID: %s, IOException: %s", awsRequestId, error.getMessage()));
+            LOGGER.error(error.getMessage(), error);
             return reply(500, error.getMessage());
         }
 
@@ -77,7 +78,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
             this.repository.saveStat(stat);
             return reply(200, "");
         } catch (AmazonDynamoDBException error) {
-            logger.log(String.format("AWS_REQUEST_ID: %s, AmazonDynamoDBException: %s", awsRequestId, error.getMessage()));
+            LOGGER.error(error.getMessage(), error);
             return reply(error.getStatusCode(), error.getMessage());
         }
     }

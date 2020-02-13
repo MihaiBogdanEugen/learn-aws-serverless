@@ -14,7 +14,7 @@ locals {
   add_stat_lambda_layer_dist_filename           = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat-layer.zip"
   get_movie_and_stat_lambda_dist_filename       = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat.zip"
   get_movie_and_stat_lambda_layer_dist_filename = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat-layer.zip"
-  provisioned_concurrent_executions             = 1
+  provisioned_concurrent_executions             = 3
 }
 
 ############################################################################
