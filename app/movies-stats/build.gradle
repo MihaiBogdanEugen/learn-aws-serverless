@@ -1,8 +1,8 @@
 ext {
     awsLambdaJavaCoreVersion = "1.2.0"
     awsLambdaJavaEventsVersion = "2.2.7"
-    awsJavaSdkVersion = "1.11.717"
     awsXrayJavaSdkVersion = "2.4.0"
+    awsJavaSdkVersion = "1.11.717"
     gradleVersion = "6.1.1"
     jacksonVersion = "2.10.2"
 }
@@ -50,11 +50,11 @@ configure(subprojects.findAll {it.name != "models"}) {
         implementation "com.amazonaws:aws-lambda-java-events:${awsLambdaJavaEventsVersion}"
 
         implementation platform("com.amazonaws:aws-xray-recorder-sdk-bom:${awsXrayJavaSdkVersion}")
-        implementation "com.amazonaws:aws-xray-recorder-sdk-core:${awsXrayJavaSdkVersion}"
-        implementation "com.amazonaws:aws-xray-recorder-sdk-aws-sdk-instrumentor:${awsXrayJavaSdkVersion}"
+        implementation "com.amazonaws:aws-xray-recorder-sdk-core"
+        implementation "com.amazonaws:aws-xray-recorder-sdk-aws-sdk"
 
         implementation platform("com.amazonaws:aws-java-sdk-bom:${awsJavaSdkVersion}")
-        implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsJavaSdkVersion}"
+        implementation "com.amazonaws:aws-java-sdk-dynamodb"
     }
 
     task buildLayerZip(type: Zip) {

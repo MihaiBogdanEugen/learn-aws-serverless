@@ -6,6 +6,8 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.handlers.TracingHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -26,6 +28,7 @@ public final class FnGetMovieAndStat implements RequestHandler<APIGatewayV2Proxy
 
         final var dynamoDBClient = AmazonDynamoDBClientBuilder
                 .standard()
+                .withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder()))
                 .build();
 
         this.repository = new DynamoDBRepository(

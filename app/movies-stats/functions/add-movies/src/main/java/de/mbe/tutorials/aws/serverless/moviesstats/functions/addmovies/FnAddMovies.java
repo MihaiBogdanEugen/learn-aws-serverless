@@ -7,6 +7,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.handlers.TracingHandler;
 
 import java.io.IOException;
 
@@ -18,10 +20,12 @@ public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
 
         final var s3Client = AmazonS3ClientBuilder
                 .standard()
+                .withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder()))
                 .build();
 
         final var dynamoDBClient = AmazonDynamoDBClientBuilder
                 .standard()
+                .withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder()))
                 .build();
 
         this.uploadService = new UploadFromS3ToDynamoDBService(
