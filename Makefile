@@ -1,3 +1,5 @@
+CODE_VERSION?=Python
+
 ## help: Prints this help message
 help:
 	@echo "Usage: \n"
@@ -5,23 +7,37 @@ help:
 
 ## clean: Clean the files and directories generated during build
 clean:
+ifeq ($(CODE_VERSION), Python)
+	@(echo "Using Python3.8")
+	rm -rdf app/packages/
+else
+	@(echo "Using Java11")
+	cd app/java11/movies-stats && \
+	./gradlew clean  && \
+	rm -rdf ../../packages/
+endif
+	
+## package: Build and package the source code into an uber-zip and all dependencies into an uber-layer
+package: clean check-pip3
+ifeq ($(CODE_VERSION), Python)
+	@(echo "Using Python3.8")
+	mkdir -p app/packages/
+	$(call package_python_fn,add-movies)
+	$(call package_python_fn,add-stat)
+	$(call package_python_fn,get-movie-and-stat)	
+else
+	@(echo "Using Java11")
+	mkdir -p app/packages/
+	$(call package_java_fn,add-movies)
+	$(call package_java_fn,add-stat)
+	$(call package_java_fn,get-movie-and-stat)
+endif
+
+## reset-terraform: Reset Terraform state
+reset-terraform:
 	rm -rfd infrastructure/terraform/.terraform/ && \
 	rm -f infrastructure/terraform/terraform.tfstate && \
-	rm -f infrastructure/terraform/terraform.tfstate.backup && \
-	cd app/movies-stats && ./gradlew clean
-
-## test: Run the tests
-test:
-	cd app/movies-stats && \
-	./gradlew clean && \
-	./gradlew test
-
-## package: Build and package the source code into an uber-zip
-package: test
-	cd app/movies-stats && \
-	./gradlew :add-movies:build && \
-	./gradlew :add-stat:build && \
-	./gradlew :get-movie-and-stat:build
+	rm -f infrastructure/terraform/terraform.tfstate.backup 
 
 ## format: Rewrites Terraform config files to canonical format
 fmt: check-terraform
@@ -51,6 +67,12 @@ destroy: check-terraform
 output: check-terraform
 	cd infrastructure/terraform && terraform output
 
+## check-pip3: Locate pip3 in the current user's path (checking if it is installed or not)
+check-pip3:
+ifeq (, $(shell which pip3))
+	$(error "pip3 is NOT installed correctly")
+endif
+
 ## check-terraform: Locate terraform in the current user's path (checking if it is installed or not)
 check-terraform:
 ifeq (, $(shell which terraform))
@@ -69,4 +91,23 @@ ifndef TF_VAR_aws_account_id
 	$(error "TF_VAR_aws_account_id is undefined")
 endif
 
-.PHONY: help clean test package fmt init validate plan apply destroy output check-terraform check-tf-var-aws-region check-tf-var-aws-account-id
+define package_java_fn
+	cd app/java11/movies-stats && \
+	./gradlew test && \
+	./gradlew :$(1):build && \
+	cp $(1)/build/distributions/$(1).zip ../../packages/ && \
+	cp $(1)/build/distributions/$(1)-layer.zip ../../packages/ 
+endef
+
+define package_python_fn
+	cd app/python3.8/movies-stats && \
+	pip3 install -r requirements.txt -t ./temp/python/lib/python3.8/site-packages && \
+	cd temp && \
+	zip -r9 layer.zip . && \
+	mv layer.zip ../../packages/$(1)-layer.zip && \
+	cd ../ && \
+	rm -rdf temp/ && \
+	zip -r9 ../../packages/$(1).zip $(1)/
+endef
+
+.PHONY: help clean package reset-terraform fmt init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id
