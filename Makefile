@@ -19,9 +19,9 @@ test:
 ## package: Build and package the source code into an uber-zip
 package: test
 	cd app/movies-stats && \
-	./gradlew :functions:add-movies:build && \
-	./gradlew :functions:add-stat:build && \
-	./gradlew :functions:get-movie-and-stat:build
+	./gradlew :add-movies:build && \
+	./gradlew :add-stat:build && \
+	./gradlew :get-movie-and-stat:build
 
 ## format: Rewrites Terraform config files to canonical format
 fmt: check-terraform
