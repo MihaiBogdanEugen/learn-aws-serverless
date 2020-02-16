@@ -8,13 +8,29 @@ provider aws {
 }
 
 locals {
-  add_movies_lambda_dist_filename               = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies.zip"
-  add_movies_lambda_layer_dist_filename         = "../../app/movies-stats/functions/add-movies/build/distributions/add-movies-layer.zip"
-  add_stat_lambda_dist_filename                 = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat.zip"
-  add_stat_lambda_layer_dist_filename           = "../../app/movies-stats/functions/add-stat/build/distributions/add-stat-layer.zip"
-  get_movie_and_stat_lambda_dist_filename       = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat.zip"
-  get_movie_and_stat_lambda_layer_dist_filename = "../../app/movies-stats/functions/get-movie-and-stat/build/distributions/get-movie-and-stat-layer.zip"
+  add_movies_lambda_dist_filename               = "../../app/packages/add-movies.zip"
+  add_movies_lambda_layer_dist_filename         = "../../app/packages/add-movies-layer.zip"
+  add_stat_lambda_dist_filename                 = "../../app/packages/add-stat.zip"
+  add_stat_lambda_layer_dist_filename           = "../../app/packages/add-stat-layer.zip"
+  get_movie_and_stat_lambda_dist_filename       = "../../app/packages/get-movie-and-stat.zip"
+  get_movie_and_stat_lambda_layer_dist_filename = "../../app/packages/get-movie-and-stat-layer.zip"
   provisioned_concurrent_executions             = 3
+  add_movies_lambda_handler = {
+    "java": "de.mbe.tutorials.aws.serverless.moviesstats.addmovies.LambdaFn::handleRequest",
+    "python": "add-movies/lambda_fn.handle_request"
+  }
+  add_stat_lambda_handler = {
+    "java": "de.mbe.tutorials.aws.serverless.moviesstats.addstat.LambdaFn::handleRequest",
+    "python": "add-stat/lambda_fn.handle_request"
+  }
+  get_movie_and_stat_lambda_handler = {
+    "java": "de.mbe.tutorials.aws.serverless.moviesstats.getmovieandstat.LambdaFn::handleRequest",
+    "python": "get-movie-and-stat/lambda_fn.handle_request"
+  } 
+  lambda_runtime = {
+    "java": "java11",
+    "python": "python3.8"
+  }    
 }
 
 ############################################################################
@@ -223,7 +239,8 @@ module add_movies_lambda {
   function_name                     = "fn_add_movies"
   description                       = "Read movies from an S3 file and dump them into the DynamoDB table"
   role                              = module.add_movies_lambda_role.arn
-  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addmovies.FnAddMovies::handleRequest"
+  runtime                           = local.lambda_runtime[var.code_version]  
+  handler                           = local.add_movies_lambda_handler[var.code_version]
   filename                          = local.add_movies_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.add_movies_lambda_dist_filename)
   layer_name                        = "fn_add_movies_layer"
@@ -241,7 +258,8 @@ module add_stat_lambda {
   function_name                     = "fn_add_stat"
   description                       = "Receive a PATCH request from the API GW and save the resource in the DynamoDB table"
   role                              = module.add_stat_lambda_role.arn
-  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.addstat.FnAddStat::handleRequest"
+  runtime                           = local.lambda_runtime[var.code_version]
+  handler                           = local.add_stat_lambda_handler[var.code_version]
   filename                          = local.add_stat_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.add_stat_lambda_dist_filename)
   layer_name                        = "fn_add_stat_layer"
@@ -258,7 +276,8 @@ module get_movie_and_stat_lambda {
   function_name                     = "fn_get_movie_and_stat"
   description                       = "Receive a GET request from the API GW and retreive the resource from the DynamoDB table"
   role                              = module.get_movie_and_stat_lambda_role.arn
-  handler                           = "de.mbe.tutorials.aws.serverless.moviesstats.functions.getmovieandstat.FnGetMovieAndStat::handleRequest"
+  runtime                           = local.lambda_runtime[var.code_version]
+  handler                           = local.get_movie_and_stat_lambda_handler[var.code_version]
   filename                          = local.get_movie_and_stat_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.get_movie_and_stat_lambda_dist_filename)
   layer_name                        = "fn_get_movie_and_stat_layer"

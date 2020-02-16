@@ -24,13 +24,15 @@ ifeq ($(CODE_VERSION), Python)
 	mkdir -p app/packages/
 	$(call package_python_fn,add-movies)
 	$(call package_python_fn,add-stat)
-	$(call package_python_fn,get-movie-and-stat)	
+	$(call package_python_fn,get-movie-and-stat)
+	set TF_VAR_code_version=python
 else
 	@(echo "Using Java11")
 	mkdir -p app/packages/
 	$(call package_java_fn,add-movies)
 	$(call package_java_fn,add-stat)
 	$(call package_java_fn,get-movie-and-stat)
+	set TF_VAR_code_version=java
 endif
 
 ## reset-terraform: Reset Terraform state
@@ -48,15 +50,15 @@ init: check-terraform
 	cd infrastructure/terraform && terraform init
 
 ## validate: Validates the Terraform files
-validate: package check-terraform
+validate: package check-terraform check-tf-var-code-version
 	cd infrastructure/terraform && terraform validate
 
 ## plan: Generate and show a Terraform execution plan
-plan: check-terraform
+plan: validate check-terraform
 	cd infrastructure/terraform && terraform plan
 
 ## apply: Build or change Terraform infrastructure
-apply: check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
+apply: plan check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
 	cd infrastructure/terraform && terraform apply -auto-approve
 
 ## destroy: Destroy Terraform-managed infrastructure
@@ -91,6 +93,12 @@ ifndef TF_VAR_aws_account_id
 	$(error "TF_VAR_aws_account_id is undefined")
 endif
 
+## check-tf-var-code-version: Ensure the TF_VAR_code_version environment variable is defined
+check-tf-var-code-version:
+ifndef TF_VAR_code_version
+	$(error "TF_VAR_code_version is undefined")
+endif
+
 define package_java_fn
 	cd app/java11/movies-stats && \
 	./gradlew test && \
@@ -110,4 +118,4 @@ define package_python_fn
 	zip -r9 ../../packages/$(1).zip $(1)/
 endef
 
-.PHONY: help clean package reset-terraform fmt init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id
+.PHONY: help clean package reset-terraform fmt init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id check-tf-var-code-version

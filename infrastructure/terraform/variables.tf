@@ -5,3 +5,7 @@ variable aws_region {
 variable aws_account_id {
   default = "xxxxxxxxxxxx"
 }
+
+variable code_version {
+  default = "xxxxxxxxxxxx"
+}

@@ -30,7 +30,6 @@ variable timeout {
 
 variable runtime {
   type    = string
-  default = "java11"
 }
 
 variable role {
