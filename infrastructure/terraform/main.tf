@@ -16,21 +16,21 @@ locals {
   get_movie_and_stat_lambda_layer_dist_filename = "../../app/packages/get-movie-and-stat-layer.zip"
   provisioned_concurrent_executions             = 3
   add_movies_lambda_handler = {
-    "java": "de.mbe.tutorials.aws.serverless.moviesstats.addmovies.LambdaFn::handleRequest",
-    "python": "add-movies/lambda_fn.handle_request"
+    "java" : "de.mbe.tutorials.aws.serverless.moviesstats.addmovies.LambdaFn::handleRequest",
+    "python" : "add-movies/lambda_fn.handle_request"
   }
   add_stat_lambda_handler = {
-    "java": "de.mbe.tutorials.aws.serverless.moviesstats.addstat.LambdaFn::handleRequest",
-    "python": "add-stat/lambda_fn.handle_request"
+    "java" : "de.mbe.tutorials.aws.serverless.moviesstats.addstat.LambdaFn::handleRequest",
+    "python" : "add-stat/lambda_fn.handle_request"
   }
   get_movie_and_stat_lambda_handler = {
-    "java": "de.mbe.tutorials.aws.serverless.moviesstats.getmovieandstat.LambdaFn::handleRequest",
-    "python": "get-movie-and-stat/lambda_fn.handle_request"
-  } 
+    "java" : "de.mbe.tutorials.aws.serverless.moviesstats.getmovieandstat.LambdaFn::handleRequest",
+    "python" : "get-movie-and-stat/lambda_fn.handle_request"
+  }
   lambda_runtime = {
-    "java": "java11",
-    "python": "python3.8"
-  }    
+    "java" : "java11",
+    "python" : "python3.8"
+  }
 }
 
 ############################################################################
@@ -239,7 +239,7 @@ module add_movies_lambda {
   function_name                     = "fn_add_movies"
   description                       = "Read movies from an S3 file and dump them into the DynamoDB table"
   role                              = module.add_movies_lambda_role.arn
-  runtime                           = local.lambda_runtime[var.code_version]  
+  runtime                           = local.lambda_runtime[var.code_version]
   handler                           = local.add_movies_lambda_handler[var.code_version]
   filename                          = local.add_movies_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.add_movies_lambda_dist_filename)

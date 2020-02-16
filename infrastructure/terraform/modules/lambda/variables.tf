@@ -29,7 +29,7 @@ variable timeout {
 }
 
 variable runtime {
-  type    = string
+  type = string
 }
 
 variable role {

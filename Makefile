@@ -1,4 +1,4 @@
-CODE_VERSION?=Python
+CODE_VERSION?=python
 
 ## help: Prints this help message
 help:
@@ -7,7 +7,7 @@ help:
 
 ## clean: Clean the files and directories generated during build
 clean:
-ifeq ($(CODE_VERSION), Python)
+ifeq ($(CODE_VERSION), python)
 	@(echo "Using Python3.8")
 	rm -rdf app/packages/
 else
@@ -19,20 +19,20 @@ endif
 	
 ## package: Build and package the source code into an uber-zip and all dependencies into an uber-layer
 package: clean check-pip3
-ifeq ($(CODE_VERSION), Python)
+ifeq ($(CODE_VERSION), python)
 	@(echo "Using Python3.8")
 	mkdir -p app/packages/
 	$(call package_python_fn,add-movies)
 	$(call package_python_fn,add-stat)
 	$(call package_python_fn,get-movie-and-stat)
-	set TF_VAR_code_version=python
+	export TF_VAR_code_version=python
 else
 	@(echo "Using Java11")
 	mkdir -p app/packages/
 	$(call package_java_fn,add-movies)
 	$(call package_java_fn,add-stat)
 	$(call package_java_fn,get-movie-and-stat)
-	set TF_VAR_code_version=java
+	export TF_VAR_code_version=java
 endif
 
 ## reset-terraform: Reset Terraform state
@@ -111,8 +111,7 @@ define package_python_fn
 	cd app/python3.8/movies-stats && \
 	pip3 install -r requirements.txt -t ./temp/python/lib/python3.8/site-packages && \
 	cd temp && \
-	zip -r9 layer.zip . && \
-	mv layer.zip ../../packages/$(1)-layer.zip && \
+	zip -r9 ../../../packages/$(1)-layer.zip . && \
 	cd ../ && \
 	rm -rdf temp/ && \
 	zip -r9 ../../packages/$(1).zip $(1)/
