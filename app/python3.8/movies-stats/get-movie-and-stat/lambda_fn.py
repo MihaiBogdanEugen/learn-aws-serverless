@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 dynamoDB = boto3.resource("dynamodb")
 
 
-def lambda_handler(event, context):
+def handle_request(event, context):
     logger.info(f"RemainingTimeInMillis {context.get_remaining_time_in_millis()}")
 
     request_http_method = event["httpMethod"]

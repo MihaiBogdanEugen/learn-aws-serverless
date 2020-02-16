@@ -14,13 +14,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-public final class FnAddMovies implements RequestHandler<S3Event, Integer> {
+public final class LambdaFn implements RequestHandler<S3Event, Integer> {
 
-    private static final Logger LOGGER = LogManager.getLogger(FnAddMovies.class);
+    private static final Logger LOGGER = LogManager.getLogger(LambdaFn.class);
 
     private final UploadFromS3ToDynamoDBService uploadService;
 
-    public FnAddMovies() {
+    public LambdaFn() {
 
         final var s3Client = AmazonS3ClientBuilder
                 .standard()

@@ -1,4 +1,4 @@
-package de.mbe.tutorials.aws.serverless.moviesstats.addstat;
+package de.mbe.tutorials.aws.serverless.moviesstats.getmovieandstat;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
@@ -8,27 +8,27 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyRequestEven
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2ProxyResponseEvent;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.handlers.TracingHandler;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.Stat;
+import de.mbe.tutorials.aws.serverless.moviesstatsapp.models.MovieAndStat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
+public final class LambdaFn implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGatewayV2ProxyResponseEvent> {
 
-    private static final Logger LOGGER = LogManager.getLogger(FnAddStat.class);
+    private static final Logger LOGGER = LogManager.getLogger(LambdaFn.class);
 
     private final ObjectMapper mapper;
     private final DynamoDBRepository repository;
 
-    public FnAddStat() {
+    public LambdaFn() {
 
         this.mapper = new ObjectMapper();
         this.mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         final var dynamoDBClient = AmazonDynamoDBClientBuilder
                 .standard()
@@ -37,6 +37,7 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
 
         this.repository = new DynamoDBRepository(
                 dynamoDBClient,
+                System.getenv("MOVIES_TABLE"),
                 System.getenv("STATS_TABLE"));
     }
 
@@ -46,12 +47,8 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
         LOGGER.info("RemainingTimeInMillis {}", context.getRemainingTimeInMillis());
 
         final var requestHttpMethod = request.getHttpMethod();
-        if (!requestHttpMethod.equalsIgnoreCase("patch")) {
+        if (!requestHttpMethod.equalsIgnoreCase("get")) {
             return reply(405, String.format("Unsupported http method %s", requestHttpMethod));
-        }
-
-        if (request.getBody().isBlank()) {
-            return reply(400, "Empty body");
         }
 
         if (!request.getPathParameters().containsKey("id")) {
@@ -59,27 +56,26 @@ public final class FnAddStat implements RequestHandler<APIGatewayV2ProxyRequestE
         }
 
         final var id = request.getPathParameters().get("id");
-        LOGGER.info("Patching movie with the identifier {}", id);
+        LOGGER.info("Retrieving movie with the identifier {}", id);
 
-        Stat stat;
-
-        try {
-            stat = this.mapper.readValue(request.getBody(), Stat.class);
-        } catch (IOException error) {
-            LOGGER.error(error.getMessage(), error);
-            return reply(500, error.getMessage());
-        }
-
-        if (stat == null) {
-            return reply(400, "Empty body");
-        }
+        MovieAndStat movieAndStat;
 
         try {
-            this.repository.saveStat(stat);
-            return reply(200, "");
+            movieAndStat = this.repository.getById(id);
         } catch (AmazonDynamoDBException error) {
             LOGGER.error(error.getMessage(), error);
             return reply(error.getStatusCode(), error.getMessage());
+        }
+
+        if (movieAndStat == null) {
+            return reply(404, String.format("No records for %s", id));
+        }
+
+        try {
+            return reply(200, this.mapper.writeValueAsString(movieAndStat));
+        } catch (IOException error) {
+            LOGGER.error(error.getMessage(), error);
+            return reply(500, error.getMessage());
         }
     }
 

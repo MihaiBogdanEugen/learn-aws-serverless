@@ -13,7 +13,7 @@ dynamoDB = boto3.resource('dynamodb')
 s3 = boto3.resource('s3')
 
 
-def lambda_handler(event, context):
+def handle_request(event, context):
     logger.info(f"fn_add_movies started remaining_time_in_millis = {context.get_remaining_time_in_millis()}")
 
     try:
