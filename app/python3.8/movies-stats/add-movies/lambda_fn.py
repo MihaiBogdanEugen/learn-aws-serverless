@@ -46,14 +46,14 @@ def upload_movies(event, movies_bucket, movies_table):
         s3_object = s3.Object(bucket_name, key)
         body = s3_object.get()["Body"]
 
-        for line in body._raw_stream:
+        table = dynamoDB.Table(movies_table)
 
-            str_line = line.decode("utf-8")
-            logger.info(f"line = {str_line}")
+        with table.batch_writer() as batch:
+            for line in body._raw_stream:
 
-            table = dynamoDB.Table(movies_table)
+                str_line = line.decode("utf-8")
+                logger.info(f"line = {str_line}")
 
-            with table.batch_writer() as batch:
                 batch.put_item(Item=get_item(str_line))
 
 

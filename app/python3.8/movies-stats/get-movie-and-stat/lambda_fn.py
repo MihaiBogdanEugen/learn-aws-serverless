@@ -14,6 +14,13 @@ logger.setLevel(logging.INFO)
 dynamoDB = boto3.resource("dynamodb")
 
 
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)
+
+
 def handle_request(event, context):
     logger.info(f"RemainingTimeInMillis {context.get_remaining_time_in_millis()}")
 
@@ -81,10 +88,3 @@ def get_record_by_id(identifier, table):
         return response["Item"]
 
     return None
-
-
-class DecimalEncoder(json.JSONEncoder):
-    def _iterencode(self, o, markers=None):
-        if isinstance(o, Decimal):
-            return (str(o) for o in [o])
-        return super(DecimalEncoder, self)._iterencode(o, markers)
