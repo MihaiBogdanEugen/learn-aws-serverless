@@ -30,6 +30,7 @@ def handle_request(event, context):
         return {
             "statusCode": 400
         }
+    logger.info(f"Type of body is {type(body)}")
 
     if "id" not in event["pathParameters"]:
         logger.info("Missing parameter id")

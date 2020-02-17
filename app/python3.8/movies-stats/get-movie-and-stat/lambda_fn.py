@@ -58,18 +58,25 @@ def get_movie_and_stat_by_id(identifier, movies_table, stats_table):
     if movie is None and stat is None:
         return None
 
-    movie.update(stat)
+    if movie is None:
+        return stat
 
+    if stat is None:
+        return movie
+
+    movie.update(stat)
     return movie
 
 
 def get_record_by_id(identifier, table):
     table = dynamoDB.Table(table)
     response = table.get_item(
-        TableName=table,
         Key={
             "id": identifier
         },
     )
-    item = response["Item"]
-    return item
+    
+    if "Item" in response:
+        return response["Item"]
+
+    return None
