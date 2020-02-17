@@ -30,7 +30,7 @@ def handle_request(event, context):
 
 def upload_movies(event, movies_bucket, movies_table):
 
-    for record in event["records"]:
+    for record in event["Records"]:
 
         bucket_name = record["s3"]["bucket"]["name"]
         logger.info(f"bucket_name = {bucket_name}")
@@ -51,7 +51,7 @@ def upload_movies(event, movies_bucket, movies_table):
             table = dynamoDB.Table(movies_table)
 
             with table.batch_writer() as batch:
-                batch.put_item(Item=get_item(line))
+                batch.put_item(Item=get_item(line.decode("utf-8")))
 
 
 def get_item(line):
