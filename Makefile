@@ -42,7 +42,7 @@ reset-terraform:
 	rm -f infrastructure/terraform/terraform.tfstate.backup 
 
 ## format: Rewrites Terraform config files to canonical format
-fmt: check-terraform
+format: check-terraform
 	cd infrastructure/terraform && terraform fmt -recursive
 
 ## init: Initialize a Terraform working directory
@@ -50,15 +50,15 @@ init: check-terraform
 	cd infrastructure/terraform && terraform init
 
 ## validate: Validates the Terraform files
-validate: package check-terraform check-tf-var-code-version
+validate: check-terraform check-tf-var-code-version
 	cd infrastructure/terraform && terraform validate
 
 ## plan: Generate and show a Terraform execution plan
-plan: validate check-terraform
+plan: check-terraform
 	cd infrastructure/terraform && terraform plan
 
 ## apply: Build or change Terraform infrastructure
-apply: plan check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
+apply: check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
 	cd infrastructure/terraform && terraform apply -auto-approve
 
 ## destroy: Destroy Terraform-managed infrastructure
@@ -117,4 +117,4 @@ define package_python_fn
 	zip -r9 ../../packages/$(1).zip $(1)/
 endef
 
-.PHONY: help clean package reset-terraform fmt init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id check-tf-var-code-version
+.PHONY: help clean package reset-terraform format init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id check-tf-var-code-version
