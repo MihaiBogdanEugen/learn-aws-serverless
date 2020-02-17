@@ -1,8 +1,10 @@
+import json
 import logging
 import os
 import boto3
 
 from aws_xray_sdk.core import patch_all
+from decimal import Decimal
 
 patch_all()
 
@@ -46,12 +48,13 @@ def upload_movies(event, movies_bucket, movies_table):
 
         for line in body._raw_stream:
 
-            logger.info(f"line = {line}")
+            str_line = line.decode("utf-8")
+            logger.info(f"line = {str_line}")
 
             table = dynamoDB.Table(movies_table)
 
             with table.batch_writer() as batch:
-                batch.put_item(Item=get_item(line.decode("utf-8")))
+                batch.put_item(Item=get_item(str_line))
 
 
 def get_item(line):
@@ -61,28 +64,18 @@ def get_item(line):
     item = {}
 
     if parts[0]:
-        item["id"] = {
-            "S": parts[0]
-        }
+        item["id"] = parts[0]
 
     if parts[1]:
-        item["name"] = {
-            "S": parts[1]
-        }
+        item["name"] = parts[1]
 
     if parts[2]:
-        item["country_of_origin"] = {
-            "S": parts[2]
-        }
+        item["country_of_origin"] = parts[2]
 
     if parts[3]:
-        item["production_date"] = {
-            "S": parts[3]
-        }
+        item["production_date"] = parts[3]
 
     if parts[4]:
-        item["budget"] = {
-            "N": parts[4]
-        }
+        item["budget"] = float(parts[4])
 
-    return item
+    return json.loads(json.dumps(item), parse_float=Decimal)

@@ -7,5 +7,5 @@ variable aws_account_id {
 }
 
 variable code_version {
-  default = "xxxxxxxxxxxx"
+  default = "python"
 }
