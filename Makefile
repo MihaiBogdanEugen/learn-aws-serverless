@@ -1,4 +1,4 @@
-CODE_VERSION?=python
+CODE_VERSION?=java
 
 ## help: Prints this help message
 help:
@@ -10,11 +10,13 @@ clean:
 ifeq ($(CODE_VERSION), python)
 	@(echo "Using Python3.8")
 	rm -rdf app/packages/
-else
+else ifeq ($(CODE_VERSION), java)
 	@(echo "Using Java11")
 	cd app/java11/movies-stats && \
 	./gradlew clean  && \
 	rm -rdf ../../packages/
+else
+	@(echo "ERROR: Unknown code version")
 endif
 	
 ## package: Build and package the source code into an uber-zip and all dependencies into an uber-layer
@@ -25,14 +27,14 @@ ifeq ($(CODE_VERSION), python)
 	$(call package_python_fn,add-movies)
 	$(call package_python_fn,add-stat)
 	$(call package_python_fn,get-movie-and-stat)
-	export TF_VAR_code_version=python
-else
+else ifeq ($(CODE_VERSION), java)
 	@(echo "Using Java11")
 	mkdir -p app/packages/
 	$(call package_java_fn,add-movies)
 	$(call package_java_fn,add-stat)
 	$(call package_java_fn,get-movie-and-stat)
-	export TF_VAR_code_version=java
+else
+	@(echo "ERROR: Unknown code version")
 endif
 
 ## reset-terraform: Reset Terraform state
@@ -50,16 +52,16 @@ init: check-terraform
 	cd infrastructure/terraform && terraform init
 
 ## validate: Validates the Terraform files
-validate: check-terraform check-tf-var-code-version
+validate: check-terraform
 	cd infrastructure/terraform && terraform validate
 
 ## plan: Generate and show a Terraform execution plan
 plan: check-terraform
-	cd infrastructure/terraform && terraform plan
+	cd infrastructure/terraform && terraform plan -var 'code_version=$(CODE_VERSION)'
 
 ## apply: Build or change Terraform infrastructure
 apply: check-tf-var-aws-region check-tf-var-aws-account-id check-terraform
-	cd infrastructure/terraform && terraform apply -auto-approve
+	cd infrastructure/terraform && terraform apply -auto-approve -var 'code_version=$(CODE_VERSION)'
 
 ## destroy: Destroy Terraform-managed infrastructure
 destroy: check-terraform
@@ -93,12 +95,6 @@ ifndef TF_VAR_aws_account_id
 	$(error "TF_VAR_aws_account_id is undefined")
 endif
 
-## check-tf-var-code-version: Ensure the TF_VAR_code_version environment variable is defined
-check-tf-var-code-version:
-ifndef TF_VAR_code_version
-	$(error "TF_VAR_code_version is undefined")
-endif
-
 define package_java_fn
 	cd app/java11/movies-stats && \
 	./gradlew test && \
@@ -117,4 +113,4 @@ define package_python_fn
 	zip -r9 ../../packages/$(1).zip $(1)/
 endef
 
-.PHONY: help clean package reset-terraform format init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id check-tf-var-code-version
+.PHONY: help clean package reset-terraform format init validate plan apply destroy output check-pip3 check-terraform check-tf-var-aws-region check-tf-var-aws-account-id
