@@ -17,7 +17,7 @@ def handle_request(event, context):
     logger.info(f"RemainingTimeInMillis {context.get_remaining_time_in_millis()}")
 
     request_http_method = event["httpMethod"]
-    if request_http_method.lower() != "patch":
+    if request_http_method.lower() != "get":
         logger.info(f"Unsupported http method {request_http_method}")
         return {
             "statusCode": 405

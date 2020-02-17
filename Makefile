@@ -1,4 +1,4 @@
-CODE_VERSION?=java
+CODE_VERSION?=python
 
 ## help: Prints this help message
 help:
