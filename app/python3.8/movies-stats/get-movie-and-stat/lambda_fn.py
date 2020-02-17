@@ -52,8 +52,8 @@ def handle_request(event, context):
 
 
 def get_movie_and_stat_by_id(identifier, movies_table, stats_table):
-    movie = get_movie_by_id(identifier, movies_table)
-    stat = get_stat_by_id(identifier, stats_table)
+    movie = get_record_by_id(identifier, movies_table)
+    stat = get_record_by_id(identifier, stats_table)
 
     if movie is None and stat is None:
         return None
@@ -63,27 +63,12 @@ def get_movie_and_stat_by_id(identifier, movies_table, stats_table):
     return movie
 
 
-def get_movie_by_id(identifier, movies_table):
-    table = dynamoDB.Table(movies_table)
+def get_record_by_id(identifier, table):
+    table = dynamoDB.Table(table)
     response = table.get_item(
-        TableName=movies_table,
+        TableName=table,
         Key={
-            "id": {
-                "S": identifier
-            }
-        },
-    )
-    item = response["Item"]
-    return item
-
-
-def get_stat_by_id(identifier, stats_table):
-    table = dynamoDB.Table(stats_table)
-    response = table.get_item(
-        Key={
-            "id": {
-                "S": identifier
-            }
+            "id": identifier
         },
     )
     item = response["Item"]
