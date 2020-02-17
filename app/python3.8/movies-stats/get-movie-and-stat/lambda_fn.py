@@ -4,6 +4,7 @@ import os
 import boto3
 
 from aws_xray_sdk.core import patch_all
+from decimal import Decimal
 
 patch_all()
 
@@ -42,7 +43,7 @@ def handle_request(event, context):
         else:
             return {
                 "statusCode": 200,
-                "body": json.dumps(movie_and_stat)
+                "body": json.dumps(movie_and_stat, cls=DecimalEncoder)
             }
     except Exception as e:
         logger.error(f"Error while retrieving movie {identifier} from DynamoDB, error: {e}")
@@ -75,8 +76,15 @@ def get_record_by_id(identifier, table):
             "id": identifier
         },
     )
-    
+
     if "Item" in response:
         return response["Item"]
 
     return None
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def _iterencode(self, o, markers=None):
+        if isinstance(o, Decimal):
+            return (str(o) for o in [o])
+        return super(DecimalEncoder, self)._iterencode(o, markers)
