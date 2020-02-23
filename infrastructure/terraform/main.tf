@@ -1,10 +1,10 @@
 terraform {
-  required_version = "0.12.20"
+  required_version = "0.12.21"
 }
 
 provider aws {
   region  = var.aws_region
-  version = "2.48.0"
+  version = "2.50.0"
 }
 
 locals {
@@ -236,14 +236,14 @@ module get_movie_and_stat_lambda_role {
 
 module add_movies_lambda {
   source                            = "./modules/lambda"
-  function_name                     = "fn_add_movies"
+  function_name                     = "${var.code_version}_fn_add_movies"
   description                       = "Read movies from an S3 file and dump them into the DynamoDB table"
   role                              = module.add_movies_lambda_role.arn
   runtime                           = local.lambda_runtime[var.code_version]
   handler                           = local.add_movies_lambda_handler[var.code_version]
   filename                          = local.add_movies_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.add_movies_lambda_dist_filename)
-  layer_name                        = "fn_add_movies_layer"
+  layer_name                        = "${var.code_version}_fn_add_movies_layer"
   layer_filename                    = local.add_movies_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.add_movies_lambda_layer_dist_filename)
   provisioned_concurrent_executions = local.provisioned_concurrent_executions
@@ -255,14 +255,14 @@ module add_movies_lambda {
 
 module add_stat_lambda {
   source                            = "./modules/lambda"
-  function_name                     = "fn_add_stat"
+  function_name                     = "${var.code_version}_fn_add_stat"
   description                       = "Receive a PATCH request from the API GW and save the resource in the DynamoDB table"
   role                              = module.add_stat_lambda_role.arn
   runtime                           = local.lambda_runtime[var.code_version]
   handler                           = local.add_stat_lambda_handler[var.code_version]
   filename                          = local.add_stat_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.add_stat_lambda_dist_filename)
-  layer_name                        = "fn_add_stat_layer"
+  layer_name                        = "${var.code_version}_fn_add_stat_layer"
   layer_filename                    = local.add_stat_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.add_stat_lambda_layer_dist_filename)
   provisioned_concurrent_executions = local.provisioned_concurrent_executions
@@ -273,14 +273,14 @@ module add_stat_lambda {
 
 module get_movie_and_stat_lambda {
   source                            = "./modules/lambda"
-  function_name                     = "fn_get_movie_and_stat"
+  function_name                     = "${var.code_version}_fn_get_movie_and_stat"
   description                       = "Receive a GET request from the API GW and retreive the resource from the DynamoDB table"
   role                              = module.get_movie_and_stat_lambda_role.arn
   runtime                           = local.lambda_runtime[var.code_version]
   handler                           = local.get_movie_and_stat_lambda_handler[var.code_version]
   filename                          = local.get_movie_and_stat_lambda_dist_filename
   source_code_hash                  = filebase64sha256(local.get_movie_and_stat_lambda_dist_filename)
-  layer_name                        = "fn_get_movie_and_stat_layer"
+  layer_name                        = "${var.code_version}_fn_get_movie_and_stat_layer"
   layer_filename                    = local.get_movie_and_stat_lambda_layer_dist_filename
   layer_source_code_hash            = filebase64sha256(local.get_movie_and_stat_lambda_layer_dist_filename)
   provisioned_concurrent_executions = local.provisioned_concurrent_executions
